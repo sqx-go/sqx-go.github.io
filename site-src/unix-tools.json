@@ -1,0 +1,538 @@
+{
+  "index": {
+    "path": "site/unix-tools/",
+    "nav_label": "Unix tools",
+    "title": "Unix and Linux command-line tools: short guides with examples | sqx docs",
+    "description": "Short, practical guides to cat, head, tail, wc, grep, sed, awk, cut, tr, sort, uniq, xargs, tee, find, curl, jq and sqlite3, with common options, examples and how to combine each with sqx.",
+    "keywords": ["unix commands", "linux commands", "command line cheat sheet", "grep sed awk", "shell pipeline", "unix tools tutorial", "linux command examples"],
+    "lead": "sqx is built to sit in a Unix pipeline, next to tools you may already use. These short guides cover the options you will reach for most, with copy-paste examples and a note on how each one works together with sqx. Every page links to the full official manual."
+  },
+  "categories": [
+    {"id": "view", "title": "View and slice files", "summary": "Look at data, take the start or end of it, and count it."},
+    {"id": "text", "title": "Search and transform text", "summary": "Find lines, pick columns and rewrite text as it streams past."},
+    {"id": "sort", "title": "Sort and count", "summary": "Order lines and collapse duplicates."},
+    {"id": "combine", "title": "Combine commands", "summary": "Find files, fan out work and keep copies of a stream."},
+    {"id": "web", "title": "Web, JSON and databases", "summary": "Fetch from the web, reshape JSON and open SQLite files."}
+  ],
+  "tools": [
+    {
+      "name": "cat",
+      "category": "view",
+      "headline": "print and join files",
+      "summary": "Print files and join several into one stream.",
+      "description": "cat (short for concatenate) writes one or more files to standard output, one after another. It is the usual way to start a pipeline from a file, and the simplest way to glue files together.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "cat [options] [file ...]",
+      "options": [
+        ["-n", "Number every output line"],
+        ["-b", "Number only non-blank lines"],
+        ["-s", "Squeeze runs of blank lines into one"],
+        ["-A", "Show tabs, line ends and other invisible characters (GNU). On macOS use -vet"]
+      ],
+      "examples": [
+        ["Show a file", "cat notes.txt"],
+        ["Join files into a new one", "cat january.jsonl february.jsonl > q1.jsonl"],
+        ["Number lines", "cat -n script.sh"]
+      ],
+      "with_sqx": [
+        ["Start a query from a file", "Whatever cat prints becomes the stdin table.", "cat users.csv | sqx \"SELECT name, plan FROM stdin LIMIT 5\""],
+        ["Query many JSON Lines files as one table", "JSON Lines files can be joined with cat safely, because every line is a complete record.", "cat logs/*.jsonl | sqx \"SELECT type, COUNT(*) FROM stdin GROUP BY type\""]
+      ],
+      "tips": ["To combine CSV files that each have a header row, see tail -n +2 on the tail page, or load each file with sqx -f."],
+      "links": [
+        ["GNU coreutils manual: cat", "https://www.gnu.org/software/coreutils/manual/html_node/cat-invocation.html"],
+        ["Linux man page: cat(1)", "https://man7.org/linux/man-pages/man1/cat.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=cat&sektion=1"]
+      ]
+    },
+    {
+      "name": "head",
+      "category": "view",
+      "headline": "show the first lines",
+      "summary": "Show the first lines of a file or stream.",
+      "description": "head prints the beginning of a file, 10 lines by default. Use it to peek at a file's header and format before you write a query, or to take a quick sample of a huge file.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "head [-n count] [file ...]",
+      "options": [
+        ["-n N", "Print the first N lines (default 10)"],
+        ["-c N", "Print the first N bytes"]
+      ],
+      "examples": [
+        ["See the header row of a CSV", "head -n 1 users.csv"],
+        ["Peek at the first records", "head -n 5 events.jsonl"]
+      ],
+      "with_sqx": [
+        ["Try a query on a sample first", "Test a slow or complex query on the first thousand lines of a big file, then run it on everything.", "head -n 1000 big.csv | sqx \"SELECT country, COUNT(*) FROM stdin GROUP BY country\""],
+        ["Look at the first rows of a result", "", "sqx -f events=events.jsonl -o csv \"SELECT * FROM events ORDER BY amount DESC\" | head -n 4"]
+      ],
+      "tips": ["In SQL, LIMIT does the same job inside the query: SELECT * FROM stdin LIMIT 10."],
+      "links": [
+        ["GNU coreutils manual: head", "https://www.gnu.org/software/coreutils/manual/html_node/head-invocation.html"],
+        ["Linux man page: head(1)", "https://man7.org/linux/man-pages/man1/head.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=head&sektion=1"]
+      ]
+    },
+    {
+      "name": "tail",
+      "category": "view",
+      "headline": "show the last lines",
+      "summary": "Show the last lines of a file, or skip the first ones.",
+      "description": "tail prints the end of a file, 10 lines by default. It can also start from a given line, which is handy for dropping a header row, and it can follow a log file as it grows.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "tail [-n count] [-f] [file ...]",
+      "options": [
+        ["-n N", "Print the last N lines"],
+        ["-n +N", "Print everything from line N onwards. -n +2 skips a header row"],
+        ["-f", "Keep the file open and print new lines as they are written"]
+      ],
+      "examples": [
+        ["Last 20 lines of a log", "tail -n 20 app.log"],
+        ["Watch a log live", "tail -f app.log"],
+        ["Everything except the header", "tail -n +2 users.csv"]
+      ],
+      "with_sqx": [
+        ["Combine CSV files that each have a header", "Keep the header from the first file only, then append the data rows of every file.", "{ head -n 1 january.csv; tail -n +2 january.csv; tail -n +2 february.csv; } | sqx \"SELECT COUNT(*) FROM stdin\""],
+        ["Query only the most recent entries", "", "tail -n 500 access.jsonl | sqx \"SELECT status, COUNT(*) FROM stdin GROUP BY status\""]
+      ],
+      "tips": ["tail -f never finishes, and sqx waits for the end of its input, so don't pipe tail -f into sqx. Take a fixed number of lines with -n instead."],
+      "links": [
+        ["GNU coreutils manual: tail", "https://www.gnu.org/software/coreutils/manual/html_node/tail-invocation.html"],
+        ["Linux man page: tail(1)", "https://man7.org/linux/man-pages/man1/tail.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=tail&sektion=1"]
+      ]
+    },
+    {
+      "name": "wc",
+      "category": "view",
+      "headline": "count lines, words and bytes",
+      "summary": "Count lines, words, characters and bytes.",
+      "description": "wc (word count) reports how many lines, words and bytes are in its input. Most of the time you want wc -l, the number of lines.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "wc [-l] [-w] [-c] [-m] [file ...]",
+      "options": [
+        ["-l", "Count lines"],
+        ["-w", "Count words"],
+        ["-c", "Count bytes"],
+        ["-m", "Count characters (differs from bytes for non-ASCII text)"]
+      ],
+      "examples": [
+        ["Lines in a file", "wc -l users.csv"],
+        ["Lines in many files, with a total", "wc -l *.csv"]
+      ],
+      "with_sqx": [
+        ["Count the rows a query returns", "With -o raw there is no header, so every line is one row.", "sqx -f users=users.csv -o raw \"SELECT email FROM users WHERE plan = 'pro'\" | wc -l"],
+        ["Or count inside SQL", "COUNT(*) is exact and ignores the header row, which wc -l would include.", "sqx -f users=users.csv \"SELECT COUNT(*) FROM users WHERE plan = 'pro'\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: wc", "https://www.gnu.org/software/coreutils/manual/html_node/wc-invocation.html"],
+        ["Linux man page: wc(1)", "https://man7.org/linux/man-pages/man1/wc.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=wc&sektion=1"]
+      ]
+    },
+    {
+      "name": "grep",
+      "category": "text",
+      "headline": "search text for patterns",
+      "summary": "Print the lines that match a word or regular expression.",
+      "description": "grep reads its input line by line and prints every line that matches a pattern. It is the fastest way to find something in logs, source code or any text file, and to narrow a big file down before further processing.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "grep [options] pattern [file ...]",
+      "options": [
+        ["-i", "Ignore upper and lower case"],
+        ["-v", "Invert: print lines that do not match"],
+        ["-n", "Show line numbers"],
+        ["-c", "Print only the number of matching lines"],
+        ["-r", "Search every file under a directory"],
+        ["-l", "Print only the names of files that match"],
+        ["-w", "Match whole words only"],
+        ["-o", "Print only the matching part of each line"],
+        ["-E", "Use extended regular expressions (|, +, ? without backslashes)"]
+      ],
+      "examples": [
+        ["Find errors in a log, any case", "grep -i error app.log"],
+        ["Search a project with line numbers", "grep -rn \"TODO\" src/"],
+        ["Count matching lines", "grep -c \" 404 \" access.log"],
+        ["Extract IPv4 addresses", "grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+' access.log"]
+      ],
+      "with_sqx": [
+        ["Filter lines before loading", "On a very large JSON Lines file, a quick grep shrinks the input before sqx parses it.", "grep '\"type\":\"purchase\"' events.jsonl | sqx \"SELECT ROUND(SUM(amount), 2) AS revenue FROM stdin\""],
+        ["Or filter with REGEXP inside SQL", "sqx supports REGEXP, so you can match patterns on a specific column instead of the whole line.", "sqx -f logs=access_log.csv \"SELECT ts, request_url FROM logs WHERE user_agent REGEXP '(?i)curl|python'\""],
+        ["Search query results", "", "sqx -f users=users.csv -o csv \"SELECT * FROM users\" | grep -i acme"]
+      ],
+      "tips": ["Put patterns in single quotes so the shell doesn't interpret characters like *, $ or |."],
+      "links": [
+        ["GNU grep manual", "https://www.gnu.org/software/grep/manual/grep.html"],
+        ["Linux man page: grep(1)", "https://man7.org/linux/man-pages/man1/grep.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=grep&sektion=1"]
+      ]
+    },
+    {
+      "name": "sed",
+      "category": "text",
+      "headline": "find and replace in a stream",
+      "summary": "Edit text as it flows: replace, delete or print lines.",
+      "description": "sed (stream editor) applies editing commands to each line of its input. Its most common use is find and replace with s/old/new/, but it can also delete lines, print a range of lines, or edit files in place.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "sed [options] 'command' [file ...]",
+      "options": [
+        ["s/old/new/", "Replace the first match on each line"],
+        ["s/old/new/g", "Replace every match on each line"],
+        ["-n '10,20p'", "Print only lines 10 to 20"],
+        ["'/pattern/d'", "Delete lines that match"],
+        ["-E", "Use extended regular expressions"],
+        ["-i.bak", "Edit the file in place and keep a .bak backup (works on GNU and macOS)"]
+      ],
+      "examples": [
+        ["Replace text everywhere", "sed 's/http:/https:/g' urls.txt"],
+        ["Print a range of lines", "sed -n '10,20p' app.log"],
+        ["Delete comment lines", "sed '/^#/d' config.txt"],
+        ["Edit a file in place with a backup", "sed -i.bak 's/staging/production/g' settings.env"]
+      ],
+      "with_sqx": [
+        ["Clean a URL list before auditing it", "Drop comments and blank lines, then check every URL.", "sed -e '/^#/d' -e '/^$/d' urls.txt | sqx -i lines \"SELECT url, http_status(url) AS status FROM stdin\""],
+        ["Use a semicolon-separated export", "Some spreadsheet exports use ; between fields. Swap it for a comma when no field contains commas or semicolons.", "sed 's/;/,/g' export.csv | sqx \"SELECT * FROM stdin LIMIT 5\""]
+      ],
+      "tips": ["On macOS, sed -i needs a backup suffix argument: use -i.bak, or -i '' for no backup. GNU sed accepts plain -i."],
+      "links": [
+        ["GNU sed manual", "https://www.gnu.org/software/sed/manual/sed.html"],
+        ["Linux man page: sed(1)", "https://man7.org/linux/man-pages/man1/sed.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=sed&sektion=1"]
+      ]
+    },
+    {
+      "name": "awk",
+      "category": "text",
+      "headline": "process columns of text",
+      "summary": "A small language for splitting lines into fields and acting on them.",
+      "description": "awk splits each line into fields ($1, $2, …) and runs a short program on it. It is ideal for picking columns, filtering on a field value, and quick sums, especially on whitespace-separated output such as logs.",
+      "availability": "Preinstalled on macOS, Linux and BSD (GNU awk is called gawk)",
+      "syntax": "awk [-F separator] 'pattern { action }' [file ...]",
+      "options": [
+        ["-F sep", "Field separator, for example -F, for commas or -F'\\t' for tabs"],
+        ["-v name=value", "Pass a variable into the program"],
+        ["$1, $2 … $NF", "Fields of the current line. $0 is the whole line, $NF the last field"],
+        ["NR", "Current line number"],
+        ["BEGIN { } / END { }", "Run code before the first line or after the last"]
+      ],
+      "examples": [
+        ["Print the second column", "awk '{print $2}' file.txt"],
+        ["Lines where field 3 is over 100", "awk '$3 > 100' metrics.txt"],
+        ["Sum a CSV column, skipping the header", "awk -F, 'NR > 1 {total += $3} END {print total}' sales.csv"]
+      ],
+      "with_sqx": [
+        ["Turn a web server log into a table", "In the common log format, $1 is the client IP and $9 the status code. awk pulls them out; sqx groups and sorts.", "awk '{print $1\",\"$9}' access.log | sqx -no-header \"SELECT c1 AS ip, COUNT(*) AS errors FROM stdin WHERE c2 >= 400 GROUP BY c1 ORDER BY errors DESC LIMIT 10\""]
+      ],
+      "tips": ["awk -F, does not understand quoted CSV fields such as \"Rao, Asha\". For real CSV files, load them with sqx, which parses quotes correctly."],
+      "links": [
+        ["GNU awk (gawk) manual", "https://www.gnu.org/software/gawk/manual/gawk.html"],
+        ["Linux man page: gawk(1)", "https://man7.org/linux/man-pages/man1/gawk.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=awk&sektion=1"]
+      ]
+    },
+    {
+      "name": "cut",
+      "category": "text",
+      "headline": "pick columns from each line",
+      "summary": "Cut out selected fields or character ranges from each line.",
+      "description": "cut extracts columns from each line, either by delimiter-separated field number or by character position. It is simpler and faster than awk when all you need is a column or two.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "cut -d delimiter -f fields [file ...]",
+      "options": [
+        ["-d C", "Use the character C as the field delimiter (default: tab)"],
+        ["-f LIST", "Fields to keep, such as 1,3 or 2-4"],
+        ["-c LIST", "Character positions to keep, such as 1-10"]
+      ],
+      "examples": [
+        ["First and third CSV columns", "cut -d, -f1,3 simple.csv"],
+        ["User names from /etc/passwd", "cut -d: -f1 /etc/passwd"],
+        ["First 10 characters of each line", "cut -c1-10 app.log"]
+      ],
+      "with_sqx": [
+        ["Take a column from sqx output", "TSV output works with cut's default tab delimiter.", "sqx -f users=users.csv -o tsv -no-output-header \"SELECT id, email FROM users\" | cut -f2"],
+        ["Use sqx when the CSV has quoted fields", "cut splits on every comma, even inside quotes. sqx parses CSV properly and selects columns by name.", "sqx -f users=users.csv \"SELECT name, email FROM users\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: cut", "https://www.gnu.org/software/coreutils/manual/html_node/cut-invocation.html"],
+        ["Linux man page: cut(1)", "https://man7.org/linux/man-pages/man1/cut.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=cut&sektion=1"]
+      ]
+    },
+    {
+      "name": "tr",
+      "category": "text",
+      "headline": "translate or delete characters",
+      "summary": "Replace, squeeze or delete individual characters.",
+      "description": "tr works on single characters rather than words: it maps one set of characters to another, deletes characters, or squeezes repeats. It reads only from standard input, so use it in a pipe or with <.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "tr [options] set1 [set2]",
+      "options": [
+        ["'a-z' 'A-Z'", "Map each character in the first set to the second"],
+        ["-d set", "Delete these characters"],
+        ["-s set", "Squeeze repeated characters into one"]
+      ],
+      "examples": [
+        ["Upper-case text", "echo hello | tr 'a-z' 'A-Z'"],
+        ["Remove Windows carriage returns", "tr -d '\\r' < windows.txt > unix.txt"],
+        ["Collapse repeated spaces", "tr -s ' ' < report.txt"]
+      ],
+      "with_sqx": [
+        ["Turn a comma-separated list into rows", "Each item becomes a line, and sqx -i lines makes each line a row.", "echo \"example.com,go.dev,iana.org\" | tr ',' '\\n' | sqx -i lines \"SELECT line AS domain, dns_ip(line) AS ip FROM stdin\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: tr", "https://www.gnu.org/software/coreutils/manual/html_node/tr-invocation.html"],
+        ["Linux man page: tr(1)", "https://man7.org/linux/man-pages/man1/tr.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=tr&sektion=1"]
+      ]
+    },
+    {
+      "name": "sort",
+      "category": "sort",
+      "headline": "order lines",
+      "summary": "Sort lines alphabetically, numerically or by a column.",
+      "description": "sort orders the lines of its input. By default it sorts as text; options switch to numeric or human-readable size order, reverse it, or sort on a particular field.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "sort [options] [file ...]",
+      "options": [
+        ["-n", "Sort numerically"],
+        ["-r", "Reverse the order"],
+        ["-u", "Keep only the first of identical lines"],
+        ["-t C", "Use C as the field separator"],
+        ["-k N", "Sort by field N, for example -k3,3n"],
+        ["-h", "Sort sizes like 2K, 10M, 1G"]
+      ],
+      "examples": [
+        ["Alphabetical order", "sort names.txt"],
+        ["By the third CSV column, numerically", "sort -t, -k3,3n sales.csv"],
+        ["Unique lines", "sort -u emails.txt"],
+        ["Largest folders first", "du -sh * | sort -rh"]
+      ],
+      "with_sqx": [
+        ["Remove duplicate URLs before fetching", "Each duplicate would otherwise be one more row to process.", "sort -u urls.txt | sqx -i lines \"SELECT url, http_status(url) AS status FROM stdin\""],
+        ["Or sort inside SQL", "ORDER BY understands numbers, dates and multiple columns, and keeps the header in place.", "sqx -f sales=sales.csv \"SELECT * FROM sales ORDER BY amount DESC, region\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: sort", "https://www.gnu.org/software/coreutils/manual/html_node/sort-invocation.html"],
+        ["Linux man page: sort(1)", "https://man7.org/linux/man-pages/man1/sort.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=sort&sektion=1"]
+      ]
+    },
+    {
+      "name": "uniq",
+      "category": "sort",
+      "headline": "collapse and count duplicates",
+      "summary": "Merge repeated adjacent lines, optionally counting them.",
+      "description": "uniq removes or counts lines that repeat one after another. Because it only compares neighbouring lines, it is almost always used right after sort.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "uniq [options] [file]",
+      "options": [
+        ["-c", "Prefix each line with how many times it occurred"],
+        ["-d", "Print only lines that are repeated"],
+        ["-u", "Print only lines that are not repeated"],
+        ["-i", "Ignore case when comparing"]
+      ],
+      "examples": [
+        ["Remove duplicates", "sort visitors.txt | uniq"],
+        ["Top 10 most frequent lines", "sort ips.txt | uniq -c | sort -rn | head -n 10"]
+      ],
+      "with_sqx": [
+        ["The SQL version of sort | uniq -c", "The classic counting pipeline and the GROUP BY query give the same answer, but sqx skips the header and handles quoted CSV fields.", "cut -d, -f4 users.csv | sort | uniq -c | sort -rn\n\ncat users.csv | sqx \"SELECT country, COUNT(*) AS n FROM stdin GROUP BY country ORDER BY n DESC\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: uniq", "https://www.gnu.org/software/coreutils/manual/html_node/uniq-invocation.html"],
+        ["Linux man page: uniq(1)", "https://man7.org/linux/man-pages/man1/uniq.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=uniq&sektion=1"]
+      ]
+    },
+    {
+      "name": "xargs",
+      "category": "combine",
+      "headline": "run a command for each input line",
+      "summary": "Turn lines of input into arguments for another command.",
+      "description": "xargs reads items from standard input and runs a command with those items as arguments. It connects tools that print lists (find, grep -l, sqx -o raw) to tools that take arguments, and can run several commands in parallel.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "xargs [options] command [initial-arguments]",
+      "options": [
+        ["-n N", "Use at most N items per command"],
+        ["-I {}", "Replace {} in the command with each item, running once per item"],
+        ["-P N", "Run up to N commands at the same time"],
+        ["-0", "Items are separated by NUL characters (pair with find -print0)"],
+        ["-t", "Print each command before running it"]
+      ],
+      "examples": [
+        ["Delete files found by find, safely", "find . -name '*.tmp' -print0 | xargs -0 rm"],
+        ["Fetch headers for each URL, 4 at a time", "xargs -n 1 -P 4 curl -sI < urls.txt"]
+      ],
+      "with_sqx": [
+        ["Run a command for every result row", "-o raw prints bare values, one per line, ready for xargs.", "sqx -f users=users.csv -o raw \"SELECT email FROM users WHERE plan = 'enterprise'\" | xargs -n 1 echo notify:"],
+        ["Import every CSV file into one database", "sqx import appends to the table and adds new columns when files differ.", "find exports -name '*.csv' | xargs -I {} sqx import -db exports.db -t rows {}"]
+      ],
+      "tips": ["File names with spaces break plain xargs. Use find -print0 with xargs -0, or -I {} with one item per line."],
+      "links": [
+        ["GNU findutils manual: xargs", "https://www.gnu.org/software/findutils/manual/html_node/find_html/Invoking-xargs.html"],
+        ["Linux man page: xargs(1)", "https://man7.org/linux/man-pages/man1/xargs.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=xargs&sektion=1"]
+      ]
+    },
+    {
+      "name": "tee",
+      "category": "combine",
+      "headline": "save a stream and pass it on",
+      "summary": "Write input to a file and to the screen (or the next command) at once.",
+      "description": "tee copies its input to one or more files while also passing it through to standard output, like a T-shaped pipe fitting. Use it to keep a copy of intermediate results without breaking a pipeline.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "tee [-a] file ...",
+      "options": [
+        ["-a", "Append to the file instead of overwriting it"]
+      ],
+      "examples": [
+        ["See output and save it", "make test 2>&1 | tee test.log"],
+        ["Append to a log", "date | tee -a runs.log"],
+        ["Write a root-owned file", "echo \"127.0.0.1 dev.local\" | sudo tee -a /etc/hosts"]
+      ],
+      "with_sqx": [
+        ["Save a report while reading it", "", "sqx -f users=users.csv -o md \"SELECT plan, COUNT(*) AS users FROM users GROUP BY plan\" | tee plans.md"],
+        ["Keep the raw prefetch results", "Save what prefetch found, and keep a copy of it as a CSV file for later.", "sqx prefetch -o csv < urls.txt | tee prefetch.csv | sqx \"SELECT status_code, COUNT(*) FROM stdin GROUP BY status_code\""]
+      ],
+      "tips": [],
+      "links": [
+        ["GNU coreutils manual: tee", "https://www.gnu.org/software/coreutils/manual/html_node/tee-invocation.html"],
+        ["Linux man page: tee(1)", "https://man7.org/linux/man-pages/man1/tee.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=tee&sektion=1"]
+      ]
+    },
+    {
+      "name": "find",
+      "category": "combine",
+      "headline": "locate files",
+      "summary": "Search a directory tree for files by name, type, age or size.",
+      "description": "find walks through directories and lists the files that match your tests: name, type, modification time, size and more. It can also run a command on each match.",
+      "availability": "Preinstalled on macOS, Linux and BSD",
+      "syntax": "find [path ...] [tests] [actions]",
+      "options": [
+        ["-name 'pattern'", "Match the file name (use -iname to ignore case)"],
+        ["-type f / -type d", "Only files, or only directories"],
+        ["-mtime -1", "Modified within the last day"],
+        ["-size +100M", "Larger than 100 MB"],
+        ["-maxdepth N", "Don't descend more than N levels"],
+        ["-exec cmd {} +", "Run a command on the matches"],
+        ["-print0", "Separate results with NUL, for xargs -0"]
+      ],
+      "examples": [
+        ["All CSV files under the current folder", "find . -name '*.csv'"],
+        ["Logs changed in the last day", "find /var/log -type f -mtime -1"],
+        ["Big files", "find . -type f -size +100M"],
+        ["Compress every log file", "find . -name '*.log' -exec gzip {} +"]
+      ],
+      "with_sqx": [
+        ["Query every JSON Lines file in a tree", "", "find logs -name '*.jsonl' -exec cat {} + | sqx \"SELECT type, COUNT(*) FROM stdin GROUP BY type\""]
+      ],
+      "tips": ["Quote patterns like '*.csv' so the shell passes them to find instead of expanding them itself."],
+      "links": [
+        ["GNU findutils manual: find", "https://www.gnu.org/software/findutils/manual/html_mono/find.html"],
+        ["Linux man page: find(1)", "https://man7.org/linux/man-pages/man1/find.1.html"],
+        ["FreeBSD and macOS man page", "https://man.freebsd.org/cgi/man.cgi?query=find&sektion=1"]
+      ]
+    },
+    {
+      "name": "curl",
+      "category": "web",
+      "headline": "transfer data from URLs",
+      "summary": "Download pages, call APIs and inspect HTTP responses.",
+      "description": "curl sends requests to URLs and prints the response. It supports every HTTP method, custom headers, authentication, file uploads and many other protocols, which makes it the standard tool for testing and scripting web APIs.",
+      "availability": "Preinstalled on macOS, Windows 10+ and most Linux distributions",
+      "syntax": "curl [options] url",
+      "options": [
+        ["-L", "Follow redirects"],
+        ["-s", "Silent: hide the progress bar"],
+        ["-f", "Fail with an error on HTTP 4xx and 5xx responses"],
+        ["-o file", "Save the response to a file (-O uses the remote name)"],
+        ["-I", "Fetch only the response headers"],
+        ["-H 'Name: value'", "Add a request header"],
+        ["-X METHOD -d data", "Choose the method and send a request body"]
+      ],
+      "examples": [
+        ["Download a file", "curl -L -o data.csv https://example.com/data.csv"],
+        ["Show only the headers", "curl -sI https://example.com"],
+        ["Call a JSON API", "curl -s -H 'Accept: application/json' https://api.github.com/repos/golang/go"],
+        ["POST JSON", "curl -s -X POST -H 'Content-Type: application/json' -d '{\"name\":\"sqx\"}' https://httpbin.org/post"]
+      ],
+      "with_sqx": [
+        ["Query an API response", "A JSON array of objects becomes a table with one row per object.", "curl -s https://api.github.com/repos/golang/go/releases | sqx \"SELECT tag_name, published_at FROM stdin LIMIT 5\""],
+        ["Or let sqx fetch and cache it", "-f accepts a URL directly. The response is cached, so re-running the query doesn't hit the API again. Use curl when you need auth headers or POST.", "sqx -f releases=https://api.github.com/repos/golang/go/releases \"SELECT tag_name, published_at FROM releases LIMIT 5\""]
+      ],
+      "tips": [],
+      "links": [
+        ["curl manual", "https://curl.se/docs/manpage.html"],
+        ["Everything curl (free book)", "https://everything.curl.dev/"],
+        ["Linux man page: curl(1)", "https://man7.org/linux/man-pages/man1/curl.1.html"]
+      ]
+    },
+    {
+      "name": "jq",
+      "category": "web",
+      "headline": "slice and reshape JSON",
+      "summary": "A command-line processor for filtering and transforming JSON.",
+      "description": "jq reads JSON and applies a filter to it: pick fields, walk into nested arrays, select matching items and build new objects. It pairs well with sqx: jq reshapes nested JSON into flat records, and sqx joins, groups and sorts them.",
+      "availability": "Install with brew install jq, apt install jq, dnf install jq or winget install jqlang.jq",
+      "syntax": "jq [options] 'filter' [file ...]",
+      "options": [
+        [".", "Pretty-print the input unchanged"],
+        [".field / .a.b", "Get a field, or a nested field"],
+        [".[]", "Every element of an array"],
+        ["select(cond)", "Keep items where the condition is true"],
+        ["-r", "Print strings without quotes"],
+        ["-c", "Compact output, one JSON value per line (JSON Lines)"]
+      ],
+      "examples": [
+        ["Pretty-print JSON", "jq . response.json"],
+        ["List every name", "jq -r '.[].name' users.json"],
+        ["Turn an array into JSON Lines", "jq -c '.[]' users.json > users.jsonl"],
+        ["Only failed requests", "jq -c 'select(.status >= 400)' requests.jsonl"]
+      ],
+      "with_sqx": [
+        ["Unwrap nested records, then aggregate", "Many APIs put the records inside a key such as items. jq pulls them out as flat JSON Lines; sqx does the grouping.", "curl -s 'https://api.github.com/search/repositories?q=sqlite+cli' \\\n  | jq -c '.items[] | {name: .full_name, stars: .stargazers_count, language}' \\\n  | sqx \"SELECT language, COUNT(*) AS repos, SUM(stars) AS stars FROM stdin GROUP BY language ORDER BY stars DESC\""],
+        ["Or read nested fields in SQL", "For one or two nested values, SQLite's json_extract is often enough.", "sqx -f events=events.jsonl \"SELECT id, json_extract(meta, '$.device') AS device FROM events\""]
+      ],
+      "tips": [],
+      "links": [
+        ["jq manual", "https://jqlang.org/manual/"],
+        ["jq tutorial", "https://jqlang.org/tutorial/"],
+        ["jq on GitHub", "https://github.com/jqlang/jq"]
+      ]
+    },
+    {
+      "name": "sqlite3",
+      "category": "web",
+      "headline": "the SQLite command-line shell",
+      "summary": "Open, query and manage SQLite database files interactively.",
+      "description": "sqlite3 is the official interactive shell for SQLite databases. sqx writes ordinary SQLite files with import and -save, so you can open them in sqlite3 for interactive work, backups or schema changes.",
+      "availability": "Preinstalled on macOS and many Linux distributions; otherwise apt install sqlite3 or brew install sqlite",
+      "syntax": "sqlite3 [options] [database] [sql]",
+      "options": [
+        [".tables", "List tables (inside the shell)"],
+        [".schema [table]", "Show CREATE statements"],
+        [".mode csv / .mode table", "Change the output format"],
+        [".headers on", "Print column names"],
+        ["-csv -header", "Command-line equivalents for one-off queries"]
+      ],
+      "examples": [
+        ["Open a database interactively", "sqlite3 project.db"],
+        ["List tables from the shell", "sqlite3 project.db .tables"],
+        ["One-off query as CSV", "sqlite3 -csv -header project.db \"SELECT * FROM users LIMIT 5\""]
+      ],
+      "with_sqx": [
+        ["Build a database with sqx, explore it with sqlite3", "", "sqx import -db project.db -t users users.csv\nsqlite3 project.db \"SELECT plan, COUNT(*) FROM users GROUP BY plan\""]
+      ],
+      "tips": ["sqx's extra functions, such as http_status or html_title, exist only inside sqx. Run those queries with sqx -db project.db, and use sqlite3 for plain SQL."],
+      "links": [
+        ["SQLite command-line shell documentation", "https://sqlite.org/cli.html"],
+        ["SQLite SQL language reference", "https://sqlite.org/lang.html"]
+      ]
+    }
+  ]
+}

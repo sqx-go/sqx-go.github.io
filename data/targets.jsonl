@@ -1,0 +1,4 @@
+{"domain":"example.com","category":"marketing","owner":"web-team"}
+{"domain":"www.iana.org","category":"reference","owner":"docs-team"}
+{"domain":"httpbin.org","category":"testing","owner":"qa-team"}
+{"domain":"this-host-does-not-exist.invalid","category":"legacy","owner":"nobody"}

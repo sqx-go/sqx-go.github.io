@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sqx command reference: query, prefetch, import, cache | sqx docs</title>
+  <meta name="description" content="Reference for every sqx command: query, prefetch, import, cache, tables, schema and version, with usage and examples.">
+  <meta name="keywords" content="sqx commands, sqx prefetch, sqx import, sqx cache, sqx tables, sqx schema, cli reference">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/commands/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="sqx command reference: query, prefetch, import, cache | sqx docs">
+  <meta property="og:description" content="Reference for every sqx command: query, prefetch, import, cache, tables, schema and version, with usage and examples.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/commands/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sqx command reference: query, prefetch, import, cache | sqx docs">
+  <meta name="twitter:description" content="Reference for every sqx command: query, prefetch, import, cache, tables, schema and version, with usage and examples.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Commands",
+      "description": "Reference for every sqx command: query, prefetch, import, cache, tables, schema and version, with usage and examples.",
+      "url": "https://sqx-go.github.io/site/commands/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "sqx commands, sqx prefetch, sqx import, sqx cache, sqx tables, sqx schema, cli reference"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Docs",
+          "item": "https://sqx-go.github.io/site/install/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Commands",
+          "item": "https://sqx-go.github.io/site/commands/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="docs">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/" aria-current="page">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible"><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/install/">Docs</a></li><li aria-current="page">Commands</li></ol></nav>
+      <article class="prose">
+        <h1>Commands</h1>
+<p class="lead">sqx runs a SQL query by default. A few subcommands handle prefetching, importing and the cache. Flags can go before or after positional arguments in every command.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><a href="#query"><code>sqx [flags] "&lt;SQL&gt;"</code></a></td><td>Query stdin, <code>-f</code> files or a <code>-db</code> database</td></tr>
+    <tr><td><a href="#prefetch"><code>sqx prefetch</code></a></td><td>Fetch URLs concurrently into the cache</td></tr>
+    <tr><td><a href="#import"><code>sqx import</code></a></td><td>Load files, stdin or URLs into a database file</td></tr>
+    <tr><td><a href="#cache"><code>sqx cache</code></a></td><td>Inspect, query or clear the HTTP and DNS cache</td></tr>
+    <tr><td><a href="#tables-schema"><code>sqx tables</code> / <code>sqx schema</code></a></td><td>List tables with row counts, or show their <code>CREATE</code> statements</td></tr>
+    <tr><td><a href="#version"><code>sqx version</code></a></td><td>Print the version</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Run <code>sqx -h</code> to print the built-in help.</p>
+
+<h2 id="query">Query (default)</h2>
+<pre><code>cat data.csv | sqx [flags] "&lt;SQL&gt;"
+sqx -f users=users.csv -f events=events.jsonl "&lt;SQL&gt;"
+sqx -db project.db "&lt;SQL&gt;"</code></pre>
+<p>This is what runs when the first argument is not a subcommand. You can also write <code>sqx query …</code> explicitly.</p>
+<p>Statements that don't return rows (<code>INSERT</code>, <code>UPDATE</code>, <code>CREATE</code>, …) run as writes, and you can separate several with <code>;</code>. <code>INSERT … RETURNING</code> prints the returned rows. All <a href="/site/flags/#query-flags">query flags</a> and <a href="/site/flags/#cache-flags">cache flags</a> apply.</p>
+
+<h2 id="prefetch">sqx prefetch</h2>
+<pre><code>cat urls.txt | sqx prefetch -c 25 -timeout 10s
+sqx prefetch https://example.com https://go.dev</code></pre>
+<p>SQLite evaluates functions one row at a time, so warm the cache with <code>prefetch</code> before running a query over hundreds of URLs. URLs come from arguments or stdin, one per line.</p>
+<ul>
+  <li>Output columns: <code>url, final_url, status_code, response_ms, size_bytes, title, error</code>.</li>
+  <li>Rows come back in input order, and duplicate URLs are fetched once.</li>
+  <li><code>-c &lt;n&gt;</code> sets the number of workers (default <code>10</code>). <code>-o</code> sets the output format.</li>
+  <li>Accepts all <a href="/site/flags/#cache-flags">cache flags</a>. <code>sqx crawl</code> is an alias.</li>
+</ul>
+
+<h2 id="import">sqx import</h2>
+<pre><code>sqx import -db analytics.db -t users users.csv
+cat logs.jsonl | sqx import -db analytics.db -t logs
+sqx import -db analytics.db -t countries https://example.com/countries.csv
+sqx import -db analytics.db -t users -replace users.csv</code></pre>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>-db &lt;path&gt;</code></td><td><code>sqx.db</code></td><td>Target SQLite database file</td></tr>
+    <tr><td><code>-t &lt;name&gt;</code></td><td><code>data</code></td><td>Target table name</td></tr>
+    <tr><td><code>-i &lt;format&gt;</code></td><td><code>auto</code></td><td>Input format: <code>auto</code>, <code>csv</code>, <code>tsv</code>, <code>jsonl</code>, <code>json</code>, <code>lines</code></td></tr>
+    <tr><td><code>-no-header</code></td><td><code>false</code></td><td>CSV/TSV input has no header row</td></tr>
+    <tr><td><code>-replace</code></td><td><code>false</code></td><td>Drop the table first instead of appending</td></tr>
+  </tbody>
+</table>
+</div>
+<p><code>import</code> appends to an existing table and adds new columns automatically. The <a href="/site/flags/#cache-flags">cache flags</a> apply to URL sources.</p>
+
+<h2 id="cache">sqx cache</h2>
+<pre><code>sqx cache stats
+sqx cache ls
+sqx cache query "SELECT url, response_ms FROM http_cache ORDER BY response_ms DESC"
+sqx cache clear -older-than 24h
+sqx cache clear -all</code></pre>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Action</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>stats</code></td><td>URL and DNS counts, status breakdown, total body size</td></tr>
+    <tr><td><code>ls</code></td><td>Every cached URL with status and timestamp</td></tr>
+    <tr><td><code>query "&lt;SQL&gt;"</code></td><td>Run SQL against the <code>http_cache</code> and <code>dns_cache</code> tables</td></tr>
+    <tr><td><code>clear -older-than &lt;dur&gt;</code></td><td>Remove HTTP and DNS entries older than a duration</td></tr>
+    <tr><td><code>clear -all</code></td><td>Remove everything</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Also accepts <code>-cache-db</code> and <code>-o</code>. <code>clear</code> refuses to run without <code>-all</code> or <code>-older-than</code>. See <a href="/site/cache/">The web cache</a>.</p>
+
+<h2 id="tables-schema">sqx tables and sqx schema</h2>
+<pre><code>sqx tables -db analytics.db
+sqx schema -db analytics.db</code></pre>
+<p><code>tables</code> lists every table with its row count. <code>schema</code> prints the <code>CREATE</code> statements. Both default to <code>sqx.db</code> and accept <code>-o</code>.</p>
+
+<h2 id="version">sqx version</h2>
+<pre><code>sqx version</code></pre>
+<p>Prints the version, for example <code>sqx v1.2.0</code>. <code>sqx -version</code> does the same.</p>
+
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/saving-to-sqlite/"><span class="pager-direction">Previous</span><span class="pager-title">Save to a SQLite database</span></a><a class="pager-link is-next" href="/site/flags/"><span class="pager-direction">Next</span><span class="pager-title">Flags</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#query">Query (default)</a></li><li><a href="#prefetch">sqx prefetch</a></li><li><a href="#import">sqx import</a></li><li><a href="#cache">sqx cache</a></li><li><a href="#tables-schema">sqx tables and sqx schema</a></li><li><a href="#version">sqx version</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

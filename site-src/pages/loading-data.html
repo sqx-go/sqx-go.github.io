@@ -1,0 +1,111 @@
+<h1>Load CSV, JSON and text</h1>
+<p class="lead">sqx reads CSV, TSV, JSON arrays, JSON Lines and plain text from stdin, local files or URLs, and turns each into a SQLite table you can query with SQL.</p>
+
+<h2 id="from-stdin">From stdin</h2>
+<p>Pipe data in and query the table <code>stdin</code>:</p>
+<pre><code>cat data/users.csv | sqx "SELECT name, plan FROM stdin WHERE plan != 'free'"</code></pre>
+<p>Give the table a clearer name with <code>-t</code>:</p>
+<pre><code>cat data/users.csv | sqx -t users "SELECT name, plan FROM users"</code></pre>
+
+<h2 id="from-files-and-urls">From files and URLs</h2>
+<p>Use <code>-f</code> to load a file without a pipe. It is repeatable, so you can load as many as you need:</p>
+<pre><code>sqx -f users=data/users.csv "SELECT * FROM users"
+sqx -f data/users.csv "SELECT * FROM users"
+sqx -f countries=https://example.com/countries.csv "SELECT * FROM countries"</code></pre>
+<p>With <code>name=</code> you choose the table name. Without it, the table is named after the file (<code>users.csv</code> becomes <code>users</code>). A URL is downloaded through the <a href="/site/cache/">web cache</a>.</p>
+
+<h2 id="formats">Supported formats</h2>
+<p>sqx looks at the data and picks the format for you. To skip detection, force one with <code>-i</code>.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Format</th><th>Looks like</th><th>Force with</th></tr></thead>
+  <tbody>
+    <tr><td>CSV</td><td><code>id,name,country</code></td><td><code>-i csv</code></td></tr>
+    <tr><td>TSV</td><td>Tab-separated columns</td><td><code>-i tsv</code></td></tr>
+    <tr><td>JSON array</td><td><code>[{"id":1}, {"id":2}]</code></td><td><code>-i json</code></td></tr>
+    <tr><td>JSON Lines / NDJSON</td><td>One JSON object per line</td><td><code>-i jsonl</code></td></tr>
+    <tr><td>Plain lines</td><td>One value per line, such as a list of URLs</td><td><code>-i lines</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>TSV</h3>
+<pre><code>cat data/metrics.tsv | sqx "SELECT service, endpoint, latency_ms FROM stdin WHERE latency_ms &gt; 300"</code></pre>
+<pre class="output"><code>+---------+-----------+------------+
+| service | endpoint  | latency_ms |
++---------+-----------+------------+
+| auth    | /login    | 340.2      |
+| orders  | /checkout | 890.75     |
+| orders  | /checkout | 410        |
+| search  | /q        | 1203.4     |
++---------+-----------+------------+</code></pre>
+<p><code>metrics.tsv</code> contains an <code>N/A</code>, but <code>latency_ms</code> is still treated as a number, so <code>&gt; 300</code> compares numbers rather than text.</p>
+
+<h3>Plain lines</h3>
+<p>With <code>-i lines</code>, each line becomes a row with the columns <code>linenum</code>, <code>line</code> and <code>url</code> (an alias of <code>line</code>, handy for URL lists):</p>
+<pre><code>cat data/urls.txt | sqx -i lines "SELECT linenum, url FROM stdin"</code></pre>
+
+<h3>CSV without a header row</h3>
+<p>Pass <code>-no-header</code> and the columns are named <code>c1</code>, <code>c2</code>, <code>c3</code> and so on:</p>
+<pre><code>cat data/headerless.csv | sqx -no-header "SELECT c2 AS city, SUM(c3) AS orders FROM stdin GROUP BY c2"</code></pre>
+
+<h2 id="column-names">Column name cleanup</h2>
+<p>Real-world headers are messy. sqx turns them into names you can type in SQL without quoting:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Header in the file</th><th>Column in SQL</th></tr></thead>
+  <tbody>
+    <tr><td><code>First Name</code></td><td><code>first_name</code></td></tr>
+    <tr><td><code>E-mail Address</code></td><td><code>e_mail_address</code></td></tr>
+    <tr><td><code>2023 Revenue ($)</code></td><td><code>c_2023_revenue</code></td></tr>
+    <tr><td>A second <code>Amount</code></td><td><code>amount_2</code></td></tr>
+    <tr><td>An empty header in column 6</td><td><code>c6</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>To see what sqx made of a file, ask SQLite for the table layout:</p>
+<pre><code>cat data/messy_headers.csv | sqx "PRAGMA table_info(stdin)"</code></pre>
+<pre class="output"><code>+-----+----------------+---------+---------+------------+----+
+| cid | name           | type    | notnull | dflt_value | pk |
++-----+----------------+---------+---------+------------+----+
+| 0   | first_name     | TEXT    | 0       |            | 0  |
+| 1   | e_mail_address | TEXT    | 0       |            | 0  |
+| 2   | c_2023_revenue | REAL    | 0       |            | 0  |
+| 3   | amount         | INTEGER | 0       |            | 0  |
+| 4   | amount_2       | INTEGER | 0       |            | 0  |
+| 5   | c6             | TEXT    | 0       |            | 0  |
++-----+----------------+---------+---------+------------+----+</code></pre>
+
+<h2 id="types">Type inference</h2>
+<ul>
+  <li>Columns that hold numbers become <code>INTEGER</code> or <code>REAL</code>, so sorting and comparisons work as expected.</li>
+  <li>Placeholders such as <code>N/A</code>, <code>NULL</code> and <code>-</code> become SQL <code>NULL</code>.</li>
+  <li>Values with a leading zero, such as ZIP codes like <code>01234</code>, stay as text and keep their zero.</li>
+</ul>
+<pre><code>echo '[{"id":1,"zip":"01234"},{"id":2,"active":true}]' | sqx "SELECT * FROM stdin"</code></pre>
+<pre class="output"><code>+----+-------+--------+
+| id | zip   | active |
++----+-------+--------+
+| 1  | 01234 |        |
+| 2  |       | 1      |
++----+-------+--------+</code></pre>
+<p>Objects with different keys are merged into one table, and missing values are <code>NULL</code>.</p>
+
+<h2 id="nested-json">Nested JSON</h2>
+<p>Nested objects and arrays are stored as JSON text, so SQLite's <a href="https://www.sqlite.org/json1.html" rel="noopener">JSON functions</a> work on them:</p>
+<pre><code>cat data/events.jsonl | sqx "
+  SELECT id, type, amount, json_extract(meta, '$.device') AS device, tags FROM stdin"</code></pre>
+<pre class="output"><code>+-----+----------+--------+--------+-----------------+
+| id  | type     | amount | device | tags            |
++-----+----------+--------+--------+-----------------+
+| 101 | login    | 0      | mobile |                 |
+| 102 | purchase | 49.99  | mobile |                 |
+| 103 | login    | 0      | web    |                 |
+| 104 | purchase | 120.5  | web    |                 |
+| 105 | refund   | -20    | web    |                 |
+| 106 | purchase | 310    | kiosk  |                 |
+| 107 | purchase | 15.25  | mobile |                 |
+| 108 | login    | 0      |        | ["new","promo"] |
++-----+----------+--------+--------+-----------------+</code></pre>
+<p>Use <code>json_each</code> to turn an array into rows:</p>
+<pre><code>cat data/events.jsonl | sqx "SELECT e.id, tag.value AS tag FROM stdin e, json_each(e.tags) AS tag"</code></pre>

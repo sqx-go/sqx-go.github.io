@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sqx SQL function reference: URL, HTTP, HTML, DNS, regex | sqx docs</title>
+  <meta name="description" content="Every SQL function sqx adds to SQLite: url_host, url_query, http_status, http_header, html_title, html_links, dns_txt_json, ip_is_private, REGEXP, re_extract, sha256 and shannon_entropy.">
+  <meta name="keywords" content="sqlite regexp, sqlite url functions, sqlite http function, sql html parser, sqlite sha256, shannon entropy sql, dns lookup sql, sqlite extension functions">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/functions/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="sqx SQL function reference: URL, HTTP, HTML, DNS, regex | sqx docs">
+  <meta property="og:description" content="Every SQL function sqx adds to SQLite: url_host, url_query, http_status, http_header, html_title, html_links, dns_txt_json, ip_is_private, REGEXP, re_extract, sha256 and shannon_entropy.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/functions/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sqx SQL function reference: URL, HTTP, HTML, DNS, regex | sqx docs">
+  <meta name="twitter:description" content="Every SQL function sqx adds to SQLite: url_host, url_query, http_status, http_header, html_title, html_links, dns_txt_json, ip_is_private, REGEXP, re_extract, sha256 and shannon_entropy.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "SQL functions",
+      "description": "Every SQL function sqx adds to SQLite: url_host, url_query, http_status, http_header, html_title, html_links, dns_txt_json, ip_is_private, REGEXP, re_extract, sha256 and shannon_entropy.",
+      "url": "https://sqx-go.github.io/site/functions/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "sqlite regexp, sqlite url functions, sqlite http function, sql html parser, sqlite sha256, shannon entropy sql, dns lookup sql, sqlite extension functions"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Docs",
+          "item": "https://sqx-go.github.io/site/install/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "SQL functions",
+          "item": "https://sqx-go.github.io/site/functions/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="docs">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/" aria-current="page">SQL functions</a></li></ul></div><details class="nav-group is-collapsible"><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/install/">Docs</a></li><li aria-current="page">SQL functions</li></ol></nav>
+      <article class="prose">
+        <h1>SQL functions</h1>
+<p class="lead">sqx is SQLite plus extra functions for URLs, HTTP, HTML, DNS, regular expressions and hashing. Every built-in SQLite function, including the <a href="https://www.sqlite.org/json1.html" rel="noopener">JSON functions</a>, works too.</p>
+
+<h2 id="url">URL functions</h2>
+<p>These parse URLs locally and never touch the network.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><code>url_host(url)</code><br><code>url_domain(url)</code></td><td>Lowercase hostname</td><td><code>'https://Sub.Example.com:8080/a'</code> → <code>sub.example.com</code></td></tr>
+    <tr><td><code>url_scheme(url)</code></td><td>Scheme</td><td><code>'https://example.com'</code> → <code>https</code></td></tr>
+    <tr><td><code>url_path(url)</code></td><td>Path (<code>/</code> if empty)</td><td><code>'https://example.com/blog?x=1'</code> → <code>/blog</code></td></tr>
+    <tr><td><code>url_query(url, key)</code></td><td>One query parameter</td><td><code>('https://x.com/?id=42', 'id')</code> → <code>42</code></td></tr>
+    <tr><td><code>url_ext(url)</code></td><td>Lowercase file extension</td><td><code>'https://cdn.com/app.min.js?v=2'</code> → <code>.js</code></td></tr>
+    <tr><td><code>url_norm(url)</code></td><td>Lowercase host, no fragment, sorted query</td><td><code>'https://example.com/?b=2&amp;a=1#top'</code> → <code>https://example.com/?a=1&amp;b=2</code></td></tr>
+    <tr><td><code>url_join(base, ref)</code></td><td>Resolved URL</td><td><code>('https://a.com/dir/page.html', '../img.png')</code> → <code>https://a.com/img.png</code></td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>sqx "SELECT url_host('https://Sub.Example.com:8080/a') AS host,
+            url_norm('https://example.com/?b=2&amp;a=1#top') AS normalized"</code></pre>
+
+<h2 id="http">HTTP functions</h2>
+<p>Each URL is fetched once and stored in the <a href="/site/cache/">cache</a>, however many of these functions you call.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>http_status(url)</code></td><td>Status code, or <code>0</code> on a network error</td></tr>
+    <tr><td><code>http_body(url)</code></td><td>Response body</td></tr>
+    <tr><td><code>http_header(url, name)</code></td><td>One header (case-insensitive)</td></tr>
+    <tr><td><code>http_headers_json(url)</code></td><td>All headers as a JSON object, names in lowercase</td></tr>
+    <tr><td><code>http_time_ms(url)</code></td><td>Fetch duration in milliseconds</td></tr>
+    <tr><td><code>http_final_url(url)</code></td><td>URL after redirects</td></tr>
+    <tr><td><code>http_size(url)</code></td><td>Body size in bytes</td></tr>
+    <tr><td><code>http_error(url)</code></td><td>Error message, or <code>NULL</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Check security headers for a list of sites:</p>
+<pre><code>cat urls.txt | sqx -i lines "
+  SELECT url, http_header(url, 'strict-transport-security') AS hsts,
+         http_header(url, 'content-security-policy') IS NOT NULL AS has_csp
+  FROM stdin"</code></pre>
+
+<h2 id="html">HTML functions</h2>
+<p>Each function accepts <strong>either a URL</strong>, fetched through the cache, <strong>or a raw HTML string</strong>.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>html_title(x)</code></td><td>Text of <code>&lt;title&gt;</code></td></tr>
+    <tr><td><code>html_meta(x, key)</code></td><td><code>content</code> of <code>&lt;meta name|property|http-equiv="key"&gt;</code></td></tr>
+    <tr><td><code>html_text(x)</code></td><td>Plain text without tags, scripts, styles, <code>noscript</code>, comments or the doctype</td></tr>
+    <tr><td><code>html_links(x)</code></td><td>JSON array of <code>&lt;a href&gt;</code> links. Made absolute when <code>x</code> is a URL; <code>#anchors</code> and <code>javascript:</code> links are skipped.</td></tr>
+    <tr><td><code>html_tag_texts(x, tag)</code></td><td>JSON array of the inner text of every <code>&lt;tag&gt;</code></td></tr>
+    <tr><td><code>html_attr(x, tag, attr)</code></td><td>JSON array of attribute values</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Combine the JSON-array functions with <code>json_each(...)</code> to get one row per item, or <code>json_array_length(...)</code> to count them:</p>
+<pre><code>sqx -f pages=data/pages.jsonl "
+  SELECT url_path(url) AS page,
+         json_array_length(html_attr(html, 'img', 'src')) AS images,
+         json_array_length(html_attr(html, 'img', 'alt')) AS with_alt
+  FROM pages"</code></pre>
+
+<h2 id="dns">DNS and network functions</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>dns_ip(host_or_url)</code></td><td>First resolved address</td></tr>
+    <tr><td><code>dns_ips_json(host_or_url)</code></td><td>JSON array of every address</td></tr>
+    <tr><td><code>dns_txt_json(host_or_url)</code></td><td>JSON array of TXT records (SPF, DMARC, verification tokens)</td></tr>
+    <tr><td><code>ip_is_private(ip)</code></td><td><code>1</code> for loopback, private or link-local addresses, otherwise <code>0</code></td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url_host(url) AS host, dns_ip(url) AS ip, ip_is_private(dns_ip(url)) AS is_private
+  FROM stdin GROUP BY host"</code></pre>
+
+<h2 id="regex">Regular expressions</h2>
+<p>Patterns use <a href="https://github.com/google/re2/wiki/Syntax" rel="noopener">Go RE2 syntax</a>. Add <code>(?i)</code> at the start for a case-insensitive match.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>text REGEXP pattern</code></td><td><code>1</code> on a match</td></tr>
+    <tr><td><code>re_match(text, pattern)</code></td><td>Same as <code>REGEXP</code>, written as a function</td></tr>
+    <tr><td><code>re_extract(text, pattern, group)</code></td><td>One capture group (<code>0</code> is the whole match)</td></tr>
+    <tr><td><code>re_extract_all(text, pattern)</code></td><td>JSON array of every match</td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>cat data/access_log.csv | sqx "
+  SELECT ts, client_ip, request_url FROM stdin
+  WHERE request_url REGEXP '(?i)(\.\./|%27|/etc/passwd)'"</code></pre>
+
+<h2 id="hashing">Hashing and entropy</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>sha256(text)</code></td><td>Hex SHA-256 digest</td></tr>
+    <tr><td><code>shannon_entropy(text)</code></td><td>Entropy in bits per character. Random tokens and secrets score high.</td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>sqx -f pages=data/pages.jsonl "
+  SELECT substr(sha256(html_text(html)), 1, 12) AS content_hash, COUNT(*) AS pages,
+         GROUP_CONCAT(url_path(url), ' | ') AS urls
+  FROM pages GROUP BY content_hash HAVING pages &gt; 1"</code></pre>
+
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/flags/"><span class="pager-direction">Previous</span><span class="pager-title">Flags</span></a><a class="pager-link is-next" href="/site/unix-tools/"><span class="pager-direction">Next</span><span class="pager-title">Unix tools</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#url">URL functions</a></li><li><a href="#http">HTTP functions</a></li><li><a href="#html">HTML functions</a></li><li><a href="#dns">DNS and network functions</a></li><li><a href="#regex">Regular expressions</a></li><li><a href="#hashing">Hashing and entropy</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

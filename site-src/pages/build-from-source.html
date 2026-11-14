@@ -1,0 +1,31 @@
+<h1>Build from source</h1>
+<p class="lead">You only need this to build sqx yourself or publish a release. It requires <a href="https://go.dev/dl/" rel="noopener">Go</a>. No C compiler is needed, because sqx uses a pure-Go SQLite.</p>
+
+<h2 id="your-machine">Build for your own machine</h2>
+<pre><code>git clone https://github.com/sqx-go/sqx-go.github.io.git sqx
+cd sqx
+CGO_ENABLED=0 go build -o bin/sqx ./sqx
+./bin/sqx version</code></pre>
+
+<h2 id="every-platform">Build for every platform</h2>
+<pre><code>./scripts/build_releases.sh v1.2.0</code></pre>
+<p>This writes all 10 binaries and a <code>SHA256SUMS</code> file to <code>releases/</code>. The version you pass is what <code>sqx version</code> prints.</p>
+
+<h2 id="publish">Publish a release</h2>
+<ol>
+  <li>Run <code>./scripts/build_releases.sh vX.Y.Z</code>.</li>
+  <li>On GitHub, open <strong>Releases → Draft a new release</strong> and create the tag <code>vX.Y.Z</code>.</li>
+  <li>Upload every file from <code>releases/</code>, including <code>SHA256SUMS</code>.</li>
+  <li>Publish. Users can then download from the Releases page, or with <code>…/releases/latest/download/&lt;file&gt;</code>.</li>
+</ol>
+
+<h2 id="examples">Try every example</h2>
+<pre><code>./scripts/run_examples.sh
+./scripts/run_examples.sh --online</code></pre>
+<p>The first runs the offline examples; <code>--online</code> also runs the HTTP, DNS and crawler examples. The script prints each command before running it, and keeps its cache and databases in <code>output/</code>.</p>
+
+<h2 id="website">Build this website</h2>
+<p>The documentation site is generated from <code>site-src/</code> by a small Python script that needs only the standard library. It writes the home page to <code>index.html</code> and every other page to <code>site/</code>:</p>
+<pre><code>python3 scripts/build_site.py
+python3 -m http.server 8000</code></pre>
+<p>Then open <code>http://localhost:8000</code>.</p>

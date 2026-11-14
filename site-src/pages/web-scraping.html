@@ -1,0 +1,72 @@
+<h1>Fetch and parse the web</h1>
+<p class="lead">sqx can fetch URLs and read HTML right inside a SQL query. Check status codes, follow redirects, read headers and extract titles, meta tags, headings and links, without a browser or a scraping script.</p>
+
+<h2 id="first-request">Your first request</h2>
+<pre><code>sqx "SELECT http_status('https://example.com') AS status, html_title('https://example.com') AS title"</code></pre>
+<p>Both functions use the same download: sqx fetches the page once and keeps it in the <a href="/site/cache/">cache</a>.</p>
+
+<h2 id="url-list">Check a list of URLs</h2>
+<p>Put one URL per line in a file and read it with <code>-i lines</code>:</p>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url, http_status(url) AS status, http_time_ms(url) AS ms,
+         http_final_url(url) AS final_url, http_header(url, 'content-type') AS type,
+         html_title(url) AS title, http_error(url) AS error
+  FROM stdin ORDER BY status"</code></pre>
+<p>A network failure gives status <code>0</code> and the reason in <code>http_error(url)</code>, so broken links are easy to filter:</p>
+<pre><code>cat urls.txt | sqx -i lines "SELECT url, http_status(url) AS status FROM stdin
+  WHERE http_status(url) &gt;= 400 OR http_status(url) = 0"</code></pre>
+
+<h2 id="prefetch">Speed up big lists with prefetch</h2>
+<p>SQLite calls functions one row at a time, so a query over hundreds of URLs fetches them one after another. Warm the cache in parallel first:</p>
+<pre><code>cat data/urls.txt | sqx prefetch -c 25</code></pre>
+<p><code>prefetch</code> prints <code>url, final_url, status_code, response_ms, size_bytes, title, error</code> for every URL, then your real query reads everything from the cache instantly. See <a href="/site/commands/#prefetch">sqx prefetch</a>.</p>
+
+<h2 id="html">Extract from HTML</h2>
+<p>Every <code>html_*</code> function accepts <strong>either a URL</strong> (fetched through the cache) <strong>or a raw HTML string</strong>, such as a column of stored pages.</p>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url, html_meta(url, 'description') AS description,
+         json_array_length(html_tag_texts(url, 'h1')) AS h1_count
+  FROM stdin WHERE http_status(url) = 200"</code></pre>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>To get</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>The page title</td><td><code>html_title(x)</code></td></tr>
+    <tr><td>A meta tag such as <code>description</code> or <code>og:image</code></td><td><code>html_meta(x, 'description')</code></td></tr>
+    <tr><td>Visible text without tags or scripts</td><td><code>html_text(x)</code></td></tr>
+    <tr><td>Every link</td><td><code>html_links(x)</code></td></tr>
+    <tr><td>The text of every <code>&lt;h2&gt;</code></td><td><code>html_tag_texts(x, 'h2')</code></td></tr>
+    <tr><td>Every image <code>src</code></td><td><code>html_attr(x, 'img', 'src')</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="json-arrays">One row per link, heading or image</h2>
+<p><code>html_links</code>, <code>html_tag_texts</code> and <code>html_attr</code> return JSON arrays. Combine them with SQLite's <code>json_each</code> to get one row per item. This query builds a graph of which sites link to which:</p>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url_host(stdin.url) AS source, url_host(link.value) AS target, COUNT(*) AS links
+  FROM stdin, json_each(html_links(stdin.url)) AS link
+  WHERE url_host(link.value) != url_host(stdin.url)
+  GROUP BY 1, 2 ORDER BY links DESC LIMIT 15"</code></pre>
+<p>When <code>x</code> is a URL, links are made absolute. Raw HTML has no base URL, so resolve relative links with <code>url_join(page_url, link.value)</code>.</p>
+
+<h2 id="stored-html">Stored HTML</h2>
+<p>Already have pages saved in a file? Point the same functions at the HTML column, with no network at all:</p>
+<pre><code>sqx -f pages=data/pages.jsonl "SELECT url_path(url) AS page, html_title(html) AS title FROM pages"</code></pre>
+<pre class="output"><code>+--------------------+------------------------+
+| page               | title                  |
++--------------------+------------------------+
+| /menu/index.html   | Menu | Pizza Example   |
+| /offers/index.html | Offers | Pizza Example |
+| /menu/copy.html    | Menu copy              |
+| /menu/copy2.html   | Menu copy              |
++--------------------+------------------------+</code></pre>
+
+<h2 id="polite">Be a polite crawler</h2>
+<ul>
+  <li>Set a descriptive user agent with <code>-ua "my-audit/1.0 (+https://example.com)"</code>.</li>
+  <li>Keep <code>prefetch -c</code> low for a single site.</li>
+  <li>Use <code>-offline</code> to re-run queries on cached pages without sending any requests.</li>
+  <li>Only crawl sites you are allowed to.</li>
+</ul>
+<p>All functions are listed in the <a href="/site/functions/#http">SQL function reference</a>.</p>

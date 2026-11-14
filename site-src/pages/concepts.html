@@ -1,0 +1,42 @@
+<h1>How sqx works</h1>
+<p class="lead">sqx rests on three ideas. Once you know them, every command and flag makes sense.</p>
+
+<h2 id="data-becomes-tables">1. Your data becomes tables</h2>
+<p>sqx starts an in-memory <a href="https://www.sqlite.org/" rel="noopener">SQLite</a> database, loads your input into it, runs your SQL and prints the result.</p>
+<ul>
+  <li>Data piped into sqx becomes a table called <code>stdin</code>. Rename it with <code>-t</code>.</li>
+  <li>Each <code>-f name=path</code> becomes a table called <code>name</code>. With just <code>-f path</code>, the table is named after the file.</li>
+  <li>The format is <strong>detected automatically</strong>: JSON array, JSON Lines, TSV, a plain list of URLs or CSV.</li>
+  <li>Column names are <strong>cleaned up</strong> and column types are <strong>inferred</strong>, so <code>WHERE latency_ms &gt; 300</code> compares numbers.</li>
+</ul>
+<p>Because it is SQLite, you get the full SQL language: joins, <code>GROUP BY</code>, window functions, CTEs, <code>json_extract</code>, <code>json_each</code> and more. sqx adds its own <a href="/site/functions/">functions</a> on top.</p>
+<p>Read more in <a href="/site/loading-data/">Load CSV, JSON and text</a>.</p>
+
+<h2 id="fetch-once">2. Fetch once, query as often as you like</h2>
+<p>Every web function (<code>http_*</code>, <code>html_*</code>, <code>dns_*</code>) shares a cache on disk. However many functions you call on one URL, it is downloaded once, and later runs read it from the cache without touching the network.</p>
+<p>That means you can refine a query twenty times while exploring a website, and only the first run waits for the network.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>You want to…</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>Work without a network</td><td><code>-offline</code></td></tr>
+    <tr><td>Refresh everything</td><td><code>-force</code></td></tr>
+    <tr><td>Treat entries older than an hour as stale</td><td><code>-cache-ttl 1h</code></td></tr>
+    <tr><td>Keep a separate cache per project</td><td><code>-cache-db ./project-cache.db</code></td></tr>
+    <tr><td>Warm the cache for many URLs quickly</td><td><code>sqx prefetch -c 25</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Read more in <a href="/site/cache/">The web cache</a>.</p>
+
+<h2 id="temporary-by-default">3. Temporary by default, saved when you ask</h2>
+<ul>
+  <li>A plain query runs in memory, and its tables disappear when the command ends.</li>
+  <li><code>sqx import -db project.db …</code> saves files, stdin or URLs into a SQLite database file.</li>
+  <li><code>-db project.db -save &lt;table&gt; "&lt;SQL&gt;"</code> saves a query result. Running it again replaces the table.</li>
+  <li>Tables from stdin and <code>-f</code> are never written into <code>-db</code>, so repeating a command never duplicates rows.</li>
+</ul>
+<p>Read more in <a href="/site/saving-to-sqlite/">Save to a SQLite database</a>.</p>
+
+<h2 id="unix-friendly">Unix-friendly by design</h2>
+<p>sqx reads stdin and writes stdout, so it fits into pipelines. Output is a readable table in a terminal and CSV when piped, which means you can chain sqx into itself, into <code>grep</code>, <code>xargs</code> or any other tool. Errors go to stderr and the exit code is non-zero on failure.</p>

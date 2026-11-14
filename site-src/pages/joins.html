@@ -1,0 +1,35 @@
+<h1>Join files</h1>
+<p class="lead">Load as many files and URLs as you like, in any mix of formats, and join them in a single SQL query. No import step, no schema to write.</p>
+
+<h2 id="two-files">Join two files</h2>
+<p>Give each file a table name with <code>-f name=path</code>:</p>
+<pre><code>sqx -f users=data/users.csv -f events=data/events.jsonl "
+  SELECT u.name, COUNT(e.id) AS events, ROUND(SUM(e.amount), 2) AS revenue
+  FROM users u LEFT JOIN events e ON e.user_id = u.id
+  GROUP BY u.id ORDER BY revenue DESC"</code></pre>
+<p>Here a CSV file is joined to a JSON Lines file. sqx does not care what format each side is in.</p>
+
+<h2 id="stdin-and-files">Mix stdin with files</h2>
+<p>Piped input and <code>-f</code> tables live side by side. Use <code>-t</code> to give stdin a meaningful name:</p>
+<pre><code>cat data/events.jsonl | sqx -t events -f users=data/users.csv "
+  SELECT u.country, json_extract(e.meta, '$.device') AS device, COUNT(*) AS n
+  FROM events e JOIN users u ON u.id = e.user_id
+  GROUP BY 1, 2"</code></pre>
+
+<h2 id="remote-files">Join a remote file</h2>
+<p>A URL works anywhere a path does. It is fetched once and cached:</p>
+<pre><code>sqx -f orders=orders.csv -f countries=https://example.com/countries.csv "
+  SELECT c.name, COUNT(*) FROM orders o JOIN countries c ON c.code = o.country GROUP BY c.name"</code></pre>
+
+<h2 id="pipes">Chain sqx with pipes</h2>
+<p>When its output is piped, sqx writes CSV, which the next sqx reads automatically. That lets you build a query in stages:</p>
+<pre><code>sqx -f u=data/users.csv -o csv "SELECT * FROM u WHERE plan != 'free'" \
+  | sqx "SELECT country, COUNT(*) FROM stdin GROUP BY country"</code></pre>
+
+<h2 id="with-database">Join with a saved database</h2>
+<p>Files loaded with <code>-f</code> can be joined with tables in a SQLite file opened with <code>-db</code>. If a loaded table has the same name as a saved one, write <code>main.&lt;name&gt;</code> to reach the saved table:</p>
+<pre><code>sqx -db project.db -f incoming=data/users.csv "
+  SELECT i.id, i.plan AS new_plan, u.plan AS old_plan
+  FROM incoming i JOIN main.users u ON u.id = i.id
+  WHERE i.plan != u.plan"</code></pre>
+<p>See <a href="/site/saving-to-sqlite/">Save to a SQLite database</a>.</p>

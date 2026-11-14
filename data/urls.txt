@@ -1,0 +1,8 @@
+https://example.com
+https://example.com/?b=2&a=1#top
+https://www.iana.org/help/example-domains
+https://httpbin.org/html
+https://httpbin.org/status/404
+https://httpbin.org/redirect/2
+https://go.dev
+https://this-host-does-not-exist.invalid

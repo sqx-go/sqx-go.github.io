@@ -1,0 +1,50 @@
+<h1>The web cache</h1>
+<p class="lead">Every HTTP and DNS lookup sqx makes is stored in a SQLite file on disk. The first query pays for the network; every query after that reads from the cache.</p>
+
+<h2 id="how-it-works">How it works</h2>
+<ul>
+  <li>All <code>http_*</code>, <code>html_*</code> and <code>dns_*</code> functions, <code>-f</code> URLs, <code>sqx prefetch</code> and <code>sqx import</code> share one cache.</li>
+  <li>Calling five functions on the same URL downloads it once.</li>
+  <li>Entries are reused for 7 days (<code>168h</code>) by default, then fetched again.</li>
+</ul>
+
+<h2 id="location">Where the cache lives</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>System</th><th>Default location</th></tr></thead>
+  <tbody>
+    <tr><td>Linux, FreeBSD</td><td><code>~/.cache/sqx</code></td></tr>
+    <tr><td>macOS</td><td><code>~/Library/Caches/sqx</code></td></tr>
+    <tr><td>Windows</td><td><code>%LocalAppData%\sqx</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Use a separate cache for a project or in CI with <code>-cache-db</code>:</p>
+<pre><code>cat urls.txt | sqx -cache-db ./project-cache.db -i lines "SELECT url, http_status(url) FROM stdin"</code></pre>
+
+<h2 id="control">Control freshness</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>You want to…</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>Work without a network; a cache miss returns status <code>0</code> or <code>NULL</code></td><td><code>-offline</code></td></tr>
+    <tr><td>Ignore the cache and fetch every URL again</td><td><code>-force</code></td></tr>
+    <tr><td>Treat entries older than an hour as stale</td><td><code>-cache-ttl 1h</code></td></tr>
+    <tr><td>Always refetch</td><td><code>-cache-ttl 0s</code></td></tr>
+    <tr><td>Change the request timeout</td><td><code>-timeout 30s</code></td></tr>
+    <tr><td>Keep larger response bodies</td><td><code>-max-body-bytes 52428800</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="inspect">Inspect the cache</h2>
+<pre><code>sqx cache stats
+sqx cache ls</code></pre>
+<p><code>stats</code> shows URL and DNS counts, a status-code breakdown and the total body size. <code>ls</code> lists every cached URL with its status and timestamp.</p>
+<p>The cache is just SQLite, so you can query it. The tables are <code>http_cache</code> and <code>dns_cache</code>:</p>
+<pre><code>sqx cache query "SELECT url, response_ms FROM http_cache ORDER BY response_ms DESC LIMIT 10"</code></pre>
+
+<h2 id="clear">Clear the cache</h2>
+<pre><code>sqx cache clear -older-than 24h
+sqx cache clear -all</code></pre>
+<p>As a safety measure, <code>clear</code> refuses to run unless you pass <code>-all</code> or <code>-older-than</code>.</p>

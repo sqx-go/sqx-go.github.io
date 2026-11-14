@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unix and Linux command-line tools: short guides with examples | sqx docs</title>
+  <meta name="description" content="Short, practical guides to cat, head, tail, wc, grep, sed, awk, cut, tr, sort, uniq, xargs, tee, find, curl, jq and sqlite3, with common options, examples and how to combine each with sqx.">
+  <meta name="keywords" content="unix commands, linux commands, command line cheat sheet, grep sed awk, shell pipeline, unix tools tutorial, linux command examples">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/unix-tools/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="Unix and Linux command-line tools: short guides with examples | sqx docs">
+  <meta property="og:description" content="Short, practical guides to cat, head, tail, wc, grep, sed, awk, cut, tr, sort, uniq, xargs, tee, find, curl, jq and sqlite3, with common options, examples and how to combine each with sqx.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/unix-tools/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Unix and Linux command-line tools: short guides with examples | sqx docs">
+  <meta name="twitter:description" content="Short, practical guides to cat, head, tail, wc, grep, sed, awk, cut, tr, sort, uniq, xargs, tee, find, curl, jq and sqlite3, with common options, examples and how to combine each with sqx.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Unix tools",
+      "description": "Short, practical guides to cat, head, tail, wc, grep, sed, awk, cut, tr, sort, uniq, xargs, tee, find, curl, jq and sqlite3, with common options, examples and how to combine each with sqx.",
+      "url": "https://sqx-go.github.io/site/unix-tools/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "unix commands, linux commands, command line cheat sheet, grep sed awk, shell pipeline, unix tools tutorial, linux command examples"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Unix tools",
+          "item": "https://sqx-go.github.io/site/unix-tools/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="tools">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible" open><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/" aria-current="page">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li aria-current="page">Unix tools</li></ol></nav>
+      <article class="prose">
+        <h1>Unix and Linux tools</h1>
+<p class="lead">sqx is built to sit in a Unix pipeline, next to tools you may already use. These short guides cover the options you will reach for most, with copy-paste examples and a note on how each one works together with sqx. Every page links to the full official manual.</p>
+
+<div class="callout"><p><strong>Linux or macOS?</strong> Linux usually ships the GNU versions of these tools and macOS ships the BSD versions. The everyday options on these pages work on both; where they differ, the page says so. Run <code>man &lt;tool&gt;</code> to read the manual for the version you have.</p></div>
+
+<h2 id="view">View and slice files</h2>
+<p>Look at data, take the start or end of it, and count it.</p>
+<div class="tool-grid"><a class="tool-card" href="/site/unix-tools/cat/"><code class="tool-card-name">cat</code><span>Print files and join several into one stream.</span></a><a class="tool-card" href="/site/unix-tools/head/"><code class="tool-card-name">head</code><span>Show the first lines of a file or stream.</span></a><a class="tool-card" href="/site/unix-tools/tail/"><code class="tool-card-name">tail</code><span>Show the last lines of a file, or skip the first ones.</span></a><a class="tool-card" href="/site/unix-tools/wc/"><code class="tool-card-name">wc</code><span>Count lines, words, characters and bytes.</span></a></div>
+
+<h2 id="text">Search and transform text</h2>
+<p>Find lines, pick columns and rewrite text as it streams past.</p>
+<div class="tool-grid"><a class="tool-card" href="/site/unix-tools/grep/"><code class="tool-card-name">grep</code><span>Print the lines that match a word or regular expression.</span></a><a class="tool-card" href="/site/unix-tools/sed/"><code class="tool-card-name">sed</code><span>Edit text as it flows: replace, delete or print lines.</span></a><a class="tool-card" href="/site/unix-tools/awk/"><code class="tool-card-name">awk</code><span>A small language for splitting lines into fields and acting on them.</span></a><a class="tool-card" href="/site/unix-tools/cut/"><code class="tool-card-name">cut</code><span>Cut out selected fields or character ranges from each line.</span></a><a class="tool-card" href="/site/unix-tools/tr/"><code class="tool-card-name">tr</code><span>Replace, squeeze or delete individual characters.</span></a></div>
+
+<h2 id="sort">Sort and count</h2>
+<p>Order lines and collapse duplicates.</p>
+<div class="tool-grid"><a class="tool-card" href="/site/unix-tools/sort/"><code class="tool-card-name">sort</code><span>Sort lines alphabetically, numerically or by a column.</span></a><a class="tool-card" href="/site/unix-tools/uniq/"><code class="tool-card-name">uniq</code><span>Merge repeated adjacent lines, optionally counting them.</span></a></div>
+
+<h2 id="combine">Combine commands</h2>
+<p>Find files, fan out work and keep copies of a stream.</p>
+<div class="tool-grid"><a class="tool-card" href="/site/unix-tools/xargs/"><code class="tool-card-name">xargs</code><span>Turn lines of input into arguments for another command.</span></a><a class="tool-card" href="/site/unix-tools/tee/"><code class="tool-card-name">tee</code><span>Write input to a file and to the screen (or the next command) at once.</span></a><a class="tool-card" href="/site/unix-tools/find/"><code class="tool-card-name">find</code><span>Search a directory tree for files by name, type, age or size.</span></a></div>
+
+<h2 id="web">Web, JSON and databases</h2>
+<p>Fetch from the web, reshape JSON and open SQLite files.</p>
+<div class="tool-grid"><a class="tool-card" href="/site/unix-tools/curl/"><code class="tool-card-name">curl</code><span>Download pages, call APIs and inspect HTTP responses.</span></a><a class="tool-card" href="/site/unix-tools/jq/"><code class="tool-card-name">jq</code><span>A command-line processor for filtering and transforming JSON.</span></a><a class="tool-card" href="/site/unix-tools/sqlite3/"><code class="tool-card-name">sqlite3</code><span>Open, query and manage SQLite database files interactively.</span></a></div>
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/functions/"><span class="pager-direction">Previous</span><span class="pager-title">SQL functions</span></a><a class="pager-link is-next" href="/site/unix-tools/cat/"><span class="pager-direction">Next</span><span class="pager-title">cat</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#view">View and slice files</a></li><li><a href="#text">Search and transform text</a></li><li><a href="#sort">Sort and count</a></li><li><a href="#combine">Combine commands</a></li><li><a href="#web">Web, JSON and databases</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

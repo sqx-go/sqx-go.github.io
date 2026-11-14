@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Query CSV, TSV, JSON and JSON Lines files with SQL | sqx docs</title>
+  <meta name="description" content="Load CSV, TSV, JSON arrays, JSON Lines and plain text into sqx from stdin, files or URLs. Learn format detection, header cleanup, type inference and how to query nested JSON.">
+  <meta name="keywords" content="query csv with sql, query json with sql, jsonl to sql, tsv sql, headerless csv, json_extract, csv type inference, messy csv headers">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/loading-data/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="Query CSV, TSV, JSON and JSON Lines files with SQL | sqx docs">
+  <meta property="og:description" content="Load CSV, TSV, JSON arrays, JSON Lines and plain text into sqx from stdin, files or URLs. Learn format detection, header cleanup, type inference and how to query nested JSON.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/loading-data/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Query CSV, TSV, JSON and JSON Lines files with SQL | sqx docs">
+  <meta name="twitter:description" content="Load CSV, TSV, JSON arrays, JSON Lines and plain text into sqx from stdin, files or URLs. Learn format detection, header cleanup, type inference and how to query nested JSON.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Load CSV, JSON and text",
+      "description": "Load CSV, TSV, JSON arrays, JSON Lines and plain text into sqx from stdin, files or URLs. Learn format detection, header cleanup, type inference and how to query nested JSON.",
+      "url": "https://sqx-go.github.io/site/loading-data/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "query csv with sql, query json with sql, jsonl to sql, tsv sql, headerless csv, json_extract, csv type inference, messy csv headers"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Docs",
+          "item": "https://sqx-go.github.io/site/install/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Load CSV, JSON and text",
+          "item": "https://sqx-go.github.io/site/loading-data/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="docs">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/" aria-current="page">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible"><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/install/">Docs</a></li><li aria-current="page">Load CSV, JSON and text</li></ol></nav>
+      <article class="prose">
+        <h1>Load CSV, JSON and text</h1>
+<p class="lead">sqx reads CSV, TSV, JSON arrays, JSON Lines and plain text from stdin, local files or URLs, and turns each into a SQLite table you can query with SQL.</p>
+
+<h2 id="from-stdin">From stdin</h2>
+<p>Pipe data in and query the table <code>stdin</code>:</p>
+<pre><code>cat data/users.csv | sqx "SELECT name, plan FROM stdin WHERE plan != 'free'"</code></pre>
+<p>Give the table a clearer name with <code>-t</code>:</p>
+<pre><code>cat data/users.csv | sqx -t users "SELECT name, plan FROM users"</code></pre>
+
+<h2 id="from-files-and-urls">From files and URLs</h2>
+<p>Use <code>-f</code> to load a file without a pipe. It is repeatable, so you can load as many as you need:</p>
+<pre><code>sqx -f users=data/users.csv "SELECT * FROM users"
+sqx -f data/users.csv "SELECT * FROM users"
+sqx -f countries=https://example.com/countries.csv "SELECT * FROM countries"</code></pre>
+<p>With <code>name=</code> you choose the table name. Without it, the table is named after the file (<code>users.csv</code> becomes <code>users</code>). A URL is downloaded through the <a href="/site/cache/">web cache</a>.</p>
+
+<h2 id="formats">Supported formats</h2>
+<p>sqx looks at the data and picks the format for you. To skip detection, force one with <code>-i</code>.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Format</th><th>Looks like</th><th>Force with</th></tr></thead>
+  <tbody>
+    <tr><td>CSV</td><td><code>id,name,country</code></td><td><code>-i csv</code></td></tr>
+    <tr><td>TSV</td><td>Tab-separated columns</td><td><code>-i tsv</code></td></tr>
+    <tr><td>JSON array</td><td><code>[{"id":1}, {"id":2}]</code></td><td><code>-i json</code></td></tr>
+    <tr><td>JSON Lines / NDJSON</td><td>One JSON object per line</td><td><code>-i jsonl</code></td></tr>
+    <tr><td>Plain lines</td><td>One value per line, such as a list of URLs</td><td><code>-i lines</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>TSV</h3>
+<pre><code>cat data/metrics.tsv | sqx "SELECT service, endpoint, latency_ms FROM stdin WHERE latency_ms &gt; 300"</code></pre>
+<pre class="output"><code>+---------+-----------+------------+
+| service | endpoint  | latency_ms |
++---------+-----------+------------+
+| auth    | /login    | 340.2      |
+| orders  | /checkout | 890.75     |
+| orders  | /checkout | 410        |
+| search  | /q        | 1203.4     |
++---------+-----------+------------+</code></pre>
+<p><code>metrics.tsv</code> contains an <code>N/A</code>, but <code>latency_ms</code> is still treated as a number, so <code>&gt; 300</code> compares numbers rather than text.</p>
+
+<h3>Plain lines</h3>
+<p>With <code>-i lines</code>, each line becomes a row with the columns <code>linenum</code>, <code>line</code> and <code>url</code> (an alias of <code>line</code>, handy for URL lists):</p>
+<pre><code>cat data/urls.txt | sqx -i lines "SELECT linenum, url FROM stdin"</code></pre>
+
+<h3>CSV without a header row</h3>
+<p>Pass <code>-no-header</code> and the columns are named <code>c1</code>, <code>c2</code>, <code>c3</code> and so on:</p>
+<pre><code>cat data/headerless.csv | sqx -no-header "SELECT c2 AS city, SUM(c3) AS orders FROM stdin GROUP BY c2"</code></pre>
+
+<h2 id="column-names">Column name cleanup</h2>
+<p>Real-world headers are messy. sqx turns them into names you can type in SQL without quoting:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Header in the file</th><th>Column in SQL</th></tr></thead>
+  <tbody>
+    <tr><td><code>First Name</code></td><td><code>first_name</code></td></tr>
+    <tr><td><code>E-mail Address</code></td><td><code>e_mail_address</code></td></tr>
+    <tr><td><code>2023 Revenue ($)</code></td><td><code>c_2023_revenue</code></td></tr>
+    <tr><td>A second <code>Amount</code></td><td><code>amount_2</code></td></tr>
+    <tr><td>An empty header in column 6</td><td><code>c6</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>To see what sqx made of a file, ask SQLite for the table layout:</p>
+<pre><code>cat data/messy_headers.csv | sqx "PRAGMA table_info(stdin)"</code></pre>
+<pre class="output"><code>+-----+----------------+---------+---------+------------+----+
+| cid | name           | type    | notnull | dflt_value | pk |
++-----+----------------+---------+---------+------------+----+
+| 0   | first_name     | TEXT    | 0       |            | 0  |
+| 1   | e_mail_address | TEXT    | 0       |            | 0  |
+| 2   | c_2023_revenue | REAL    | 0       |            | 0  |
+| 3   | amount         | INTEGER | 0       |            | 0  |
+| 4   | amount_2       | INTEGER | 0       |            | 0  |
+| 5   | c6             | TEXT    | 0       |            | 0  |
++-----+----------------+---------+---------+------------+----+</code></pre>
+
+<h2 id="types">Type inference</h2>
+<ul>
+  <li>Columns that hold numbers become <code>INTEGER</code> or <code>REAL</code>, so sorting and comparisons work as expected.</li>
+  <li>Placeholders such as <code>N/A</code>, <code>NULL</code> and <code>-</code> become SQL <code>NULL</code>.</li>
+  <li>Values with a leading zero, such as ZIP codes like <code>01234</code>, stay as text and keep their zero.</li>
+</ul>
+<pre><code>echo '[{"id":1,"zip":"01234"},{"id":2,"active":true}]' | sqx "SELECT * FROM stdin"</code></pre>
+<pre class="output"><code>+----+-------+--------+
+| id | zip   | active |
++----+-------+--------+
+| 1  | 01234 |        |
+| 2  |       | 1      |
++----+-------+--------+</code></pre>
+<p>Objects with different keys are merged into one table, and missing values are <code>NULL</code>.</p>
+
+<h2 id="nested-json">Nested JSON</h2>
+<p>Nested objects and arrays are stored as JSON text, so SQLite's <a href="https://www.sqlite.org/json1.html" rel="noopener">JSON functions</a> work on them:</p>
+<pre><code>cat data/events.jsonl | sqx "
+  SELECT id, type, amount, json_extract(meta, '$.device') AS device, tags FROM stdin"</code></pre>
+<pre class="output"><code>+-----+----------+--------+--------+-----------------+
+| id  | type     | amount | device | tags            |
++-----+----------+--------+--------+-----------------+
+| 101 | login    | 0      | mobile |                 |
+| 102 | purchase | 49.99  | mobile |                 |
+| 103 | login    | 0      | web    |                 |
+| 104 | purchase | 120.5  | web    |                 |
+| 105 | refund   | -20    | web    |                 |
+| 106 | purchase | 310    | kiosk  |                 |
+| 107 | purchase | 15.25  | mobile |                 |
+| 108 | login    | 0      |        | ["new","promo"] |
++-----+----------+--------+--------+-----------------+</code></pre>
+<p>Use <code>json_each</code> to turn an array into rows:</p>
+<pre><code>cat data/events.jsonl | sqx "SELECT e.id, tag.value AS tag FROM stdin e, json_each(e.tags) AS tag"</code></pre>
+
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/concepts/"><span class="pager-direction">Previous</span><span class="pager-title">How sqx works</span></a><a class="pager-link is-next" href="/site/joins/"><span class="pager-direction">Next</span><span class="pager-title">Join files</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#from-stdin">From stdin</a></li><li><a href="#from-files-and-urls">From files and URLs</a></li><li><a href="#formats">Supported formats</a></li><li><a href="#column-names">Column name cleanup</a></li><li><a href="#types">Type inference</a></li><li><a href="#nested-json">Nested JSON</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

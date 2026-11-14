@@ -1,0 +1,412 @@
+{
+  "navigation": [
+    {
+      "title": "Getting started",
+      "items": [
+        [
+          "site/install/",
+          "Install"
+        ],
+        [
+          "site/quick-start/",
+          "Quick start"
+        ],
+        [
+          "site/concepts/",
+          "How sqx works"
+        ]
+      ]
+    },
+    {
+      "title": "Guides",
+      "items": [
+        [
+          "site/loading-data/",
+          "Load CSV, JSON and text"
+        ],
+        [
+          "site/joins/",
+          "Join files"
+        ],
+        [
+          "site/output-formats/",
+          "Output formats"
+        ],
+        [
+          "site/web-scraping/",
+          "Fetch and parse the web"
+        ],
+        [
+          "site/cache/",
+          "The web cache"
+        ],
+        [
+          "site/saving-to-sqlite/",
+          "Save to a SQLite database"
+        ]
+      ]
+    },
+    {
+      "title": "Reference",
+      "items": [
+        [
+          "site/commands/",
+          "Commands"
+        ],
+        [
+          "site/flags/",
+          "Flags"
+        ],
+        [
+          "site/functions/",
+          "SQL functions"
+        ]
+      ]
+    },
+    {
+      "title": "More",
+      "items": [
+        [
+          "site/cookbook/",
+          "Cookbook"
+        ],
+        [
+          "site/build-from-source/",
+          "Build from source"
+        ],
+        [
+          "site/about/",
+          "About"
+        ]
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "path": "",
+      "source": "home",
+      "layout": "home",
+      "nav_label": "Home",
+      "priority": "1.0",
+      "title": "sqx: Query CSV, JSON, logs and websites with SQL from the command line",
+      "description": "sqx is a free, single-binary CLI that runs SQL on CSV, TSV, JSON, JSON Lines and text piped from Unix streams, and adds SQL functions to fetch URLs, parse HTML, look up DNS and match regex.",
+      "keywords": [
+        "sqx",
+        "sql cli",
+        "query csv with sql",
+        "query json with sql",
+        "sqlite command line",
+        "sql on csv files",
+        "jsonl sql",
+        "command line data tool",
+        "web scraping with sql",
+        "html parsing sql",
+        "url audit tool",
+        "csvkit alternative",
+        "textql alternative",
+        "q text as data alternative"
+      ],
+      "schema": [
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How do I query a CSV file with SQL from the command line?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Pipe the file into sqx and query the table named stdin: cat users.csv | sqx \"SELECT country, COUNT(*) FROM stdin GROUP BY country\". sqx detects the format, cleans up column names and infers numeric types automatically."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I join a CSV file with a JSON file using SQL?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Load each file as a named table with -f and join them in one query: sqx -f users=users.csv -f events=events.jsonl \"SELECT ... FROM users JOIN events ON events.user_id = users.id\"."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Does sqx need SQLite or a database server installed?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. sqx is one self-contained binary with SQLite built in. There is no runtime, server, driver or shared library to install on macOS, Linux, Windows or FreeBSD."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can sqx fetch web pages and extract HTML with SQL?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Functions such as http_status(url), html_title(url), html_meta(url, 'description') and html_links(url) fetch pages through a persistent on-disk cache, so each URL is downloaded only once."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is sqx free and open source?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. sqx is free software released under the GNU General Public License, version 2 or later."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "site/install/",
+      "source": "install",
+      "layout": "doc",
+      "nav_label": "Install",
+      "priority": "0.9",
+      "title": "Install sqx on macOS, Linux, Windows and FreeBSD | sqx docs",
+      "description": "Download the sqx binary for macOS (Apple Silicon or Intel), Linux, Windows or FreeBSD, verify the checksum and put it on your PATH. No runtime or database server required.",
+      "keywords": [
+        "install sqx",
+        "sqx download",
+        "sql cli macos",
+        "sql cli linux",
+        "sql cli windows",
+        "static binary",
+        "add to PATH"
+      ]
+    },
+    {
+      "path": "site/quick-start/",
+      "source": "quick-start",
+      "layout": "doc",
+      "nav_label": "Quick start",
+      "priority": "0.9",
+      "title": "sqx quick start: your first SQL query on a CSV file | sqx docs",
+      "description": "Run your first sqx queries in five minutes: query a CSV piped on stdin, join a CSV with a JSON Lines file, and audit live URLs with SQL.",
+      "keywords": [
+        "sqx tutorial",
+        "sql on csv example",
+        "query csv from terminal",
+        "sqx examples",
+        "getting started"
+      ]
+    },
+    {
+      "path": "site/concepts/",
+      "source": "concepts",
+      "layout": "doc",
+      "nav_label": "How sqx works",
+      "title": "How sqx works: streams become SQLite tables | sqx docs",
+      "description": "The three ideas behind sqx: every input becomes a SQLite table, web functions share a persistent cache, and everything is temporary until you choose to save it.",
+      "keywords": [
+        "sqx concepts",
+        "sqlite in memory",
+        "stdin table",
+        "http cache",
+        "how sqx works"
+      ]
+    },
+    {
+      "path": "site/loading-data/",
+      "source": "loading-data",
+      "layout": "doc",
+      "nav_label": "Load CSV, JSON and text",
+      "title": "Query CSV, TSV, JSON and JSON Lines files with SQL | sqx docs",
+      "description": "Load CSV, TSV, JSON arrays, JSON Lines and plain text into sqx from stdin, files or URLs. Learn format detection, header cleanup, type inference and how to query nested JSON.",
+      "keywords": [
+        "query csv with sql",
+        "query json with sql",
+        "jsonl to sql",
+        "tsv sql",
+        "headerless csv",
+        "json_extract",
+        "csv type inference",
+        "messy csv headers"
+      ]
+    },
+    {
+      "path": "site/joins/",
+      "source": "joins",
+      "layout": "doc",
+      "nav_label": "Join files",
+      "title": "Join CSV and JSON files with SQL on the command line | sqx docs",
+      "description": "Join any number of CSV, JSON, JSON Lines and remote files in a single SQL query with sqx -f, and chain sqx commands together with Unix pipes.",
+      "keywords": [
+        "join csv files",
+        "join csv and json",
+        "sql join command line",
+        "merge csv files sql",
+        "unix pipes sql"
+      ]
+    },
+    {
+      "path": "site/output-formats/",
+      "source": "output-formats",
+      "layout": "doc",
+      "nav_label": "Output formats",
+      "title": "Convert query results to CSV, JSON, Markdown and more | sqx docs",
+      "description": "Print sqx query results as a terminal table, CSV, TSV, JSON, JSON Lines, Markdown or raw values. Convert CSV to JSON, JSON to CSV and data to Markdown tables.",
+      "keywords": [
+        "csv to json",
+        "json to csv",
+        "csv to markdown",
+        "sql output json",
+        "markdown table from csv",
+        "jsonl output"
+      ]
+    },
+    {
+      "path": "site/web-scraping/",
+      "source": "web-scraping",
+      "layout": "doc",
+      "nav_label": "Fetch and parse the web",
+      "title": "Web scraping and URL auditing with SQL | sqx docs",
+      "description": "Fetch URLs, check HTTP status codes and redirects, read headers and extract titles, meta tags, headings and links from HTML, all from SQL, with a cache and concurrent prefetch.",
+      "keywords": [
+        "web scraping sql",
+        "check http status of urls",
+        "bulk url checker",
+        "extract links from html",
+        "seo audit command line",
+        "html title extractor",
+        "broken link checker",
+        "redirect checker"
+      ]
+    },
+    {
+      "path": "site/cache/",
+      "source": "cache",
+      "layout": "doc",
+      "nav_label": "The web cache",
+      "title": "The sqx HTTP and DNS cache: offline, refresh and TTL | sqx docs",
+      "description": "How sqx caches HTTP responses and DNS lookups on disk, how to work offline, force a refresh, set a TTL, use a per-project cache and inspect or clear it with sqx cache.",
+      "keywords": [
+        "http cache cli",
+        "offline scraping",
+        "sqx cache",
+        "cache ttl",
+        "crawl once query many"
+      ]
+    },
+    {
+      "path": "site/saving-to-sqlite/",
+      "source": "saving-to-sqlite",
+      "layout": "doc",
+      "nav_label": "Save to a SQLite database",
+      "title": "Import CSV and JSON into a SQLite database | sqx docs",
+      "description": "Import CSV, JSON and URLs into a SQLite database file with sqx import, save query results with -save, and run INSERT, UPDATE, RETURNING and upserts.",
+      "keywords": [
+        "import csv into sqlite",
+        "json to sqlite",
+        "csv to sqlite database",
+        "sqlite upsert",
+        "save query results",
+        "sqlite workspace"
+      ]
+    },
+    {
+      "path": "site/commands/",
+      "source": "commands",
+      "layout": "doc",
+      "nav_label": "Commands",
+      "title": "sqx command reference: query, prefetch, import, cache | sqx docs",
+      "description": "Reference for every sqx command: query, prefetch, import, cache, tables, schema and version, with usage and examples.",
+      "keywords": [
+        "sqx commands",
+        "sqx prefetch",
+        "sqx import",
+        "sqx cache",
+        "sqx tables",
+        "sqx schema",
+        "cli reference"
+      ]
+    },
+    {
+      "path": "site/flags/",
+      "source": "flags",
+      "layout": "doc",
+      "nav_label": "Flags",
+      "title": "sqx flag reference: input, output and cache options | sqx docs",
+      "description": "Every sqx flag with its default and meaning: -f, -t, -i, -o, -db, -save, -no-header, -cache-db, -cache-ttl, -offline, -force, -timeout and more.",
+      "keywords": [
+        "sqx flags",
+        "sqx options",
+        "command line options",
+        "sqx -o json",
+        "sqx -f"
+      ]
+    },
+    {
+      "path": "site/functions/",
+      "source": "functions",
+      "layout": "doc",
+      "nav_label": "SQL functions",
+      "priority": "0.9",
+      "title": "sqx SQL function reference: URL, HTTP, HTML, DNS, regex | sqx docs",
+      "description": "Every SQL function sqx adds to SQLite: url_host, url_query, http_status, http_header, html_title, html_links, dns_txt_json, ip_is_private, REGEXP, re_extract, sha256 and shannon_entropy.",
+      "keywords": [
+        "sqlite regexp",
+        "sqlite url functions",
+        "sqlite http function",
+        "sql html parser",
+        "sqlite sha256",
+        "shannon entropy sql",
+        "dns lookup sql",
+        "sqlite extension functions"
+      ]
+    },
+    {
+      "path": "site/cookbook/",
+      "source": "cookbook",
+      "layout": "doc",
+      "nav_label": "Cookbook",
+      "priority": "0.8",
+      "title": "sqx cookbook: SQL recipes for data, logs, SEO and security | sqx docs",
+      "description": "Copy-paste sqx recipes: analyse CSV and JSON, find leaked API keys and emails, scan access logs for attacks, audit websites for SEO, and check SPF and DMARC records.",
+      "keywords": [
+        "sql recipes",
+        "find secrets in html",
+        "access log analysis sql",
+        "spf dmarc checker",
+        "seo audit sql",
+        "duplicate content finder",
+        "log analysis command line"
+      ]
+    },
+    {
+      "path": "site/build-from-source/",
+      "source": "build-from-source",
+      "layout": "doc",
+      "nav_label": "Build from source",
+      "title": "Build sqx from source with Go | sqx docs",
+      "description": "Build sqx from source with Go and no C compiler, cross-compile release binaries for every platform and run the bundled examples.",
+      "keywords": [
+        "build sqx",
+        "go build",
+        "cross compile go",
+        "cgo disabled sqlite",
+        "modernc sqlite"
+      ]
+    },
+    {
+      "path": "site/about/",
+      "source": "about",
+      "layout": "page",
+      "nav_label": "About",
+      "priority": "0.5",
+      "title": "About sqx and Abhishek Sengar | sqx",
+      "description": "About sqx, a free and open-source SQL command-line tool for Unix streams and the web, and its maker Abhishek Sengar.",
+      "keywords": [
+        "about sqx",
+        "Abhishek Sengar",
+        "open source sql tool"
+      ]
+    },
+    {
+      "path": "404.html",
+      "source": "not-found",
+      "layout": "page",
+      "nav_label": "Page not found",
+      "noindex": true,
+      "title": "Page not found | sqx",
+      "description": "This page does not exist. Find sqx documentation, the SQL function reference and the cookbook from here."
+    }
+  ]
+}

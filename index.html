@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sqx: Query CSV, JSON, logs and websites with SQL from the command line</title>
+  <meta name="description" content="sqx is a free, single-binary CLI that runs SQL on CSV, TSV, JSON, JSON Lines and text piped from Unix streams, and adds SQL functions to fetch URLs, parse HTML, look up DNS and match regex.">
+  <meta name="keywords" content="sqx, sql cli, query csv with sql, query json with sql, sqlite command line, sql on csv files, jsonl sql, command line data tool, web scraping with sql, html parsing sql, url audit tool, csvkit alternative, textql alternative, q text as data alternative">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="sqx: Query CSV, JSON, logs and websites with SQL from the command line">
+  <meta property="og:description" content="sqx is a free, single-binary CLI that runs SQL on CSV, TSV, JSON, JSON Lines and text piped from Unix streams, and adds SQL functions to fetch URLs, parse HTML, look up DNS and match regex.">
+  <meta property="og:url" content="https://sqx-go.github.io/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="sqx: Query CSV, JSON, logs and websites with SQL from the command line">
+  <meta name="twitter:description" content="sqx is a free, single-binary CLI that runs SQL on CSV, TSV, JSON, JSON Lines and text piped from Unix streams, and adds SQL functions to fetch URLs, parse HTML, look up DNS and match regex.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://sqx-go.github.io/#software",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "A single static binary that loads CSV, TSV, JSON, JSON Lines and text into SQLite and queries them with SQL, with built-in HTTP fetching, HTML parsing, DNS, regex and hashing functions.",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "Command-line tool",
+      "operatingSystem": "macOS, Linux, Windows, FreeBSD",
+      "license": "https://spdx.org/licenses/GPL-2.0-or-later.html",
+      "codeRepository": "https://github.com/sqx-go/sqx-go.github.io",
+      "downloadUrl": "https://github.com/sqx-go/sqx-go.github.io/releases/latest",
+      "programmingLanguage": "Go",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I query a CSV file with SQL from the command line?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pipe the file into sqx and query the table named stdin: cat users.csv | sqx \"SELECT country, COUNT(*) FROM stdin GROUP BY country\". sqx detects the format, cleans up column names and infers numeric types automatically."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I join a CSV file with a JSON file using SQL?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Load each file as a named table with -f and join them in one query: sqx -f users=users.csv -f events=events.jsonl \"SELECT ... FROM users JOIN events ON events.user_id = users.id\"."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does sqx need SQLite or a database server installed?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. sqx is one self-contained binary with SQLite built in. There is no runtime, server, driver or shared library to install on macOS, Linux, Windows or FreeBSD."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can sqx fetch web pages and extract HTML with SQL?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Functions such as http_status(url), html_title(url), html_meta(url, 'description') and html_links(url) fetch pages through a persistent on-disk cache, so each URL is downloaded only once."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is sqx free and open source?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. sqx is free software released under the GNU General Public License, version 2 or later."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-home" data-section="home">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      
+      <article class="prose">
+        <section class="hero">
+  <div class="hero-copy">
+    <p class="hero-kicker">Free · Open source · One binary</p>
+    <h1>SQL for Unix streams <em>and the web.</em></h1>
+    <p class="hero-lead"><strong>sqx</strong> turns CSV, JSON, logs and plain text into tables you can query straight from your terminal. Built-in functions fetch URLs, read HTML and look up DNS, so one query can join a spreadsheet with a live website.</p>
+    <div class="hero-actions">
+      <a class="button is-primary" href="/site/install/">Install sqx</a>
+      <a class="button" href="/site/quick-start/">Quick start</a>
+      <a class="button is-ghost" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub →</a>
+    </div>
+  </div>
+  <div class="hero-terminal">
+    <div class="terminal-bar"><span></span><span></span><span></span><em>~/data</em></div>
+<pre><code>cat users.csv | sqx "
+  SELECT country, COUNT(*) AS customers
+  FROM stdin GROUP BY country"</code></pre>
+<pre class="output"><code>+---------+-----------+
+| country | customers |
++---------+-----------+
+| CN      | 1         |
+| IN      | 2         |
+| MX      | 1         |
+| TR      | 1         |
+| US      | 1         |
++---------+-----------+</code></pre>
+  </div>
+</section>
+
+<h2 id="how-it-works">Data in, SQL in the middle, answers out</h2>
+<p>Pipe in whatever you have. sqx loads it into an in-memory SQLite database, runs your query, and prints the result in the format you need.</p>
+<div class="pipeline" role="img" aria-label="Inputs such as CSV, JSON, logs and URLs flow into sqx, which outputs tables, CSV, JSON, Markdown or a SQLite file">
+  <div class="pipeline-column">
+    <span class="pipeline-label">You pipe in</span>
+    <ul><li>CSV</li><li>TSV</li><li>JSON</li><li>JSON Lines</li><li>logs</li><li>URLs</li><li>HTML</li></ul>
+  </div>
+  <div class="pipeline-core">
+    <img src="/site/favicon.svg" alt="" width="44" height="44">
+    <strong>sq<span class="brand-x">x</span></strong>
+    <small>SELECT … FROM stdin</small>
+  </div>
+  <div class="pipeline-column">
+    <span class="pipeline-label">You get back</span>
+    <ul><li>table</li><li>CSV</li><li>JSON</li><li>Markdown</li><li>raw values</li><li>SQLite file</li></ul>
+  </div>
+</div>
+
+<h2 id="why-sqx">Why sqx?</h2>
+<p>Joining two CSV files, checking which of 500 URLs are broken, or finding an API key leaked in a page should not need a database server, credentials or a throwaway Python script. With sqx, you pipe data in and write the SQL you already know.</p>
+
+<div class="feature-grid">
+  <div class="feature">
+    <h3>Any stream is a table</h3>
+    <p>CSV, TSV, JSON arrays, JSON Lines and plain lines. The format is detected, column types are inferred and messy headers are cleaned up.</p>
+  </div>
+  <div class="feature">
+    <h3>Join files on the fly</h3>
+    <p>Load any number of local files or URLs with <code>-f name=path</code> and <code>JOIN</code> them in one query.</p>
+  </div>
+  <div class="feature">
+    <h3>Crawl once, query many times</h3>
+    <p>Every <code>http_*</code> and <code>html_*</code> function shares an on-disk cache, so each URL is downloaded once.</p>
+  </div>
+  <div class="feature">
+    <h3>HTML without a browser</h3>
+    <p>Pull titles, meta tags, headings, links and attributes out of fetched pages or stored HTML.</p>
+  </div>
+  <div class="feature">
+    <h3>Security helpers</h3>
+    <p>DNS A and TXT lookups for SPF and DMARC, private-IP checks, regex extraction, SHA-256 and Shannon entropy.</p>
+  </div>
+  <div class="feature">
+    <h3>Nothing else to install</h3>
+    <p>One self-contained binary for macOS, Linux, Windows and FreeBSD. SQLite is built in.</p>
+  </div>
+</div>
+
+<h2 id="examples">Three things you can do in one line</h2>
+
+<h3>Join a CSV with a JSON Lines file</h3>
+<pre><code>sqx -f users=users.csv -f events=events.jsonl "
+  SELECT u.name, COUNT(e.id) AS events, ROUND(SUM(e.amount), 2) AS revenue
+  FROM users u LEFT JOIN events e ON e.user_id = u.id
+  GROUP BY u.id ORDER BY revenue DESC"</code></pre>
+
+<h3>Audit a list of URLs</h3>
+<pre><code>cat urls.txt | sqx -i lines "
+  SELECT url, http_status(url) AS status, http_final_url(url) AS final_url, html_title(url) AS title
+  FROM stdin"</code></pre>
+
+<h3>Check SPF and DMARC for a list of domains</h3>
+<pre><code>cat companies.csv | sqx "
+  SELECT domain,
+         CASE WHEN dns_txt_json(domain) LIKE '%v=spf1%' THEN 'yes' ELSE 'MISSING' END AS spf,
+         CASE WHEN dns_txt_json('_dmarc.' || domain) LIKE '%v=DMARC1%' THEN 'yes' ELSE 'MISSING' END AS dmarc
+  FROM stdin"</code></pre>
+
+<p>More in the <a href="/site/cookbook/">cookbook</a>.</p>
+
+<h2 id="unix-tools">Works with the tools you already know</h2>
+<p>sqx is one more command in your pipeline. Our short guides cover the classic Unix tools it pairs with, with everyday options, examples and links to the full manuals.</p>
+<div class="tool-chips is-large">
+  <a class="tool-chip" href="/site/unix-tools/cat/"><code>cat</code></a>
+  <a class="tool-chip" href="/site/unix-tools/head/"><code>head</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tail/"><code>tail</code></a>
+  <a class="tool-chip" href="/site/unix-tools/wc/"><code>wc</code></a>
+  <a class="tool-chip" href="/site/unix-tools/grep/"><code>grep</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sed/"><code>sed</code></a>
+  <a class="tool-chip" href="/site/unix-tools/awk/"><code>awk</code></a>
+  <a class="tool-chip" href="/site/unix-tools/cut/"><code>cut</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tr/"><code>tr</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sort/"><code>sort</code></a>
+  <a class="tool-chip" href="/site/unix-tools/uniq/"><code>uniq</code></a>
+  <a class="tool-chip" href="/site/unix-tools/xargs/"><code>xargs</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tee/"><code>tee</code></a>
+  <a class="tool-chip" href="/site/unix-tools/find/"><code>find</code></a>
+  <a class="tool-chip" href="/site/unix-tools/curl/"><code>curl</code></a>
+  <a class="tool-chip" href="/site/unix-tools/jq/"><code>jq</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sqlite3/"><code>sqlite3</code></a>
+</div>
+<p><a href="/site/unix-tools/">Browse all Unix tool guides →</a></p>
+
+<h2 id="docs">Documentation</h2>
+<div class="card-grid">
+  <a class="doc-card" href="/site/install/"><strong>Install</strong><span>Download the binary for your system and put it on your PATH.</span></a>
+  <a class="doc-card" href="/site/quick-start/"><strong>Quick start</strong><span>Your first three queries in five minutes.</span></a>
+  <a class="doc-card" href="/site/loading-data/"><strong>Load data</strong><span>CSV, TSV, JSON, JSON Lines, text and URLs.</span></a>
+  <a class="doc-card" href="/site/web-scraping/"><strong>Fetch and parse the web</strong><span>Status codes, redirects, headers, titles and links.</span></a>
+  <a class="doc-card" href="/site/functions/"><strong>SQL functions</strong><span>Every URL, HTTP, HTML, DNS, regex and hash function.</span></a>
+  <a class="doc-card" href="/site/commands/"><strong>Commands and flags</strong><span>prefetch, import, cache, tables, schema and every option.</span></a>
+</div>
+
+<h2 id="faq">Frequently asked questions</h2>
+<div class="faq">
+  <details>
+    <summary>How do I query a CSV file with SQL from the command line?</summary>
+    <p>Pipe the file into sqx and query the table named <code>stdin</code>: <code>cat users.csv | sqx "SELECT country, COUNT(*) FROM stdin GROUP BY country"</code>. sqx detects the format, cleans up column names and infers numeric types. See <a href="/site/loading-data/">Load CSV, JSON and text</a>.</p>
+  </details>
+  <details>
+    <summary>Can I join a CSV file with a JSON file using SQL?</summary>
+    <p>Yes. Load each file as a named table with <code>-f</code> and join them in one query. See <a href="/site/joins/">Join files</a>.</p>
+  </details>
+  <details>
+    <summary>Does sqx need SQLite or a database server installed?</summary>
+    <p>No. sqx is one self-contained binary with SQLite built in. There is no runtime, server, driver or shared library to install.</p>
+  </details>
+  <details>
+    <summary>Can sqx fetch web pages and extract HTML with SQL?</summary>
+    <p>Yes. Functions such as <code>http_status(url)</code>, <code>html_title(url)</code>, <code>html_meta(url, 'description')</code> and <code>html_links(url)</code> fetch pages through a persistent cache, so each URL is downloaded only once. See <a href="/site/web-scraping/">Fetch and parse the web</a>.</p>
+  </details>
+  <details>
+    <summary>Is sqx free and open source?</summary>
+    <p>Yes. sqx is free software released under the GNU General Public License, version 2 or later.</p>
+  </details>
+</div>
+
+      </article>
+      
+    </main>
+
+    <div class="toc-column"></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

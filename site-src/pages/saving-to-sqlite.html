@@ -1,0 +1,45 @@
+<h1>Save to a SQLite database</h1>
+<p class="lead">Queries run in memory by default. When you want to keep data, sqx can import files into a SQLite database file, save query results as tables, and run any write statement.</p>
+
+<h2 id="import">Import files into a database</h2>
+<pre><code>sqx import -db analytics.db -t users users.csv
+cat logs.jsonl | sqx import -db analytics.db -t logs
+sqx import -db analytics.db -t countries https://example.com/countries.csv</code></pre>
+<ul>
+  <li><code>import</code> <strong>appends</strong> to an existing table and adds any new columns automatically.</li>
+  <li><code>-replace</code> drops the table first: <code>sqx import -db analytics.db -t users -replace users.csv</code>.</li>
+  <li>Without <code>-db</code>, it writes to <code>sqx.db</code> in the current folder.</li>
+</ul>
+<p>Check what you have:</p>
+<pre><code>sqx tables -db analytics.db
+sqx schema -db analytics.db</code></pre>
+
+<h2 id="query">Query the database</h2>
+<pre><code>sqx -db analytics.db "SELECT country, COUNT(*) FROM users GROUP BY country"</code></pre>
+<p>The file is a normal SQLite database, so you can also open it with the <code>sqlite3</code> shell, DB Browser for SQLite, Datasette or any programming language.</p>
+
+<h2 id="save-results">Save a query result</h2>
+<p><code>-save &lt;table&gt;</code> writes the result of a query into the database. Running it again replaces the table, so a report stays up to date:</p>
+<pre><code>sqx -db analytics.db -save big_spenders "
+  SELECT u.name, SUM(e.amount) AS total
+  FROM users u JOIN events e ON e.user_id = u.id
+  GROUP BY u.id HAVING total &gt; 40"</code></pre>
+<div class="callout">
+  <p>Tables from stdin and <code>-f</code> are never written into <code>-db</code>. Repeating a command never duplicates rows.</p>
+</div>
+
+<h2 id="writes">Create, insert and update</h2>
+<p>Statements that don't return rows (<code>CREATE</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, …) run as writes. Separate several with <code>;</code>. <code>INSERT … RETURNING</code> prints the returned rows.</p>
+<pre><code>sqx -db shop.db "CREATE TABLE stores (id INTEGER PRIMARY KEY, city TEXT, region TEXT)"
+sqx -db shop.db "INSERT INTO stores (city) VALUES ('BLR'), ('DEL'), ('MUM')"
+sqx -db shop.db "INSERT INTO stores (city) VALUES ('HYD') RETURNING id, city"</code></pre>
+<p>Update a saved table from a file:</p>
+<pre><code>sqx -db shop.db -f orders=data/headerless.csv -no-header "
+  UPDATE stores SET region = (SELECT c1 FROM orders WHERE orders.c2 = stores.city LIMIT 1)"</code></pre>
+
+<h2 id="upsert">Upsert from a file</h2>
+<pre><code>sqx -db shop.db "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_id ON users(id)"
+sqx -db shop.db -f incoming=data/users.csv "
+  INSERT INTO main.users SELECT * FROM incoming WHERE true
+  ON CONFLICT(id) DO UPDATE SET plan = excluded.plan, email = excluded.email"</code></pre>
+<p>SQLite requires the <code>WHERE true</code> when an <code>INSERT … SELECT</code> has an <code>ON CONFLICT</code> clause. A table loaded with <code>-f</code> or from stdin hides a saved table of the same name, so write <code>main.&lt;name&gt;</code> for the saved one when names collide.</p>

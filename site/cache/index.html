@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The sqx HTTP and DNS cache: offline, refresh and TTL | sqx docs</title>
+  <meta name="description" content="How sqx caches HTTP responses and DNS lookups on disk, how to work offline, force a refresh, set a TTL, use a per-project cache and inspect or clear it with sqx cache.">
+  <meta name="keywords" content="http cache cli, offline scraping, sqx cache, cache ttl, crawl once query many">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/cache/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="The sqx HTTP and DNS cache: offline, refresh and TTL | sqx docs">
+  <meta property="og:description" content="How sqx caches HTTP responses and DNS lookups on disk, how to work offline, force a refresh, set a TTL, use a per-project cache and inspect or clear it with sqx cache.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/cache/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The sqx HTTP and DNS cache: offline, refresh and TTL | sqx docs">
+  <meta name="twitter:description" content="How sqx caches HTTP responses and DNS lookups on disk, how to work offline, force a refresh, set a TTL, use a per-project cache and inspect or clear it with sqx cache.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "The web cache",
+      "description": "How sqx caches HTTP responses and DNS lookups on disk, how to work offline, force a refresh, set a TTL, use a per-project cache and inspect or clear it with sqx cache.",
+      "url": "https://sqx-go.github.io/site/cache/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "http cache cli, offline scraping, sqx cache, cache ttl, crawl once query many"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Docs",
+          "item": "https://sqx-go.github.io/site/install/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "The web cache",
+          "item": "https://sqx-go.github.io/site/cache/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="docs">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/" aria-current="page">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible"><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/install/">Docs</a></li><li aria-current="page">The web cache</li></ol></nav>
+      <article class="prose">
+        <h1>The web cache</h1>
+<p class="lead">Every HTTP and DNS lookup sqx makes is stored in a SQLite file on disk. The first query pays for the network; every query after that reads from the cache.</p>
+
+<h2 id="how-it-works">How it works</h2>
+<ul>
+  <li>All <code>http_*</code>, <code>html_*</code> and <code>dns_*</code> functions, <code>-f</code> URLs, <code>sqx prefetch</code> and <code>sqx import</code> share one cache.</li>
+  <li>Calling five functions on the same URL downloads it once.</li>
+  <li>Entries are reused for 7 days (<code>168h</code>) by default, then fetched again.</li>
+</ul>
+
+<h2 id="location">Where the cache lives</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>System</th><th>Default location</th></tr></thead>
+  <tbody>
+    <tr><td>Linux, FreeBSD</td><td><code>~/.cache/sqx</code></td></tr>
+    <tr><td>macOS</td><td><code>~/Library/Caches/sqx</code></td></tr>
+    <tr><td>Windows</td><td><code>%LocalAppData%\sqx</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Use a separate cache for a project or in CI with <code>-cache-db</code>:</p>
+<pre><code>cat urls.txt | sqx -cache-db ./project-cache.db -i lines "SELECT url, http_status(url) FROM stdin"</code></pre>
+
+<h2 id="control">Control freshness</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>You want to…</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td>Work without a network; a cache miss returns status <code>0</code> or <code>NULL</code></td><td><code>-offline</code></td></tr>
+    <tr><td>Ignore the cache and fetch every URL again</td><td><code>-force</code></td></tr>
+    <tr><td>Treat entries older than an hour as stale</td><td><code>-cache-ttl 1h</code></td></tr>
+    <tr><td>Always refetch</td><td><code>-cache-ttl 0s</code></td></tr>
+    <tr><td>Change the request timeout</td><td><code>-timeout 30s</code></td></tr>
+    <tr><td>Keep larger response bodies</td><td><code>-max-body-bytes 52428800</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="inspect">Inspect the cache</h2>
+<pre><code>sqx cache stats
+sqx cache ls</code></pre>
+<p><code>stats</code> shows URL and DNS counts, a status-code breakdown and the total body size. <code>ls</code> lists every cached URL with its status and timestamp.</p>
+<p>The cache is just SQLite, so you can query it. The tables are <code>http_cache</code> and <code>dns_cache</code>:</p>
+<pre><code>sqx cache query "SELECT url, response_ms FROM http_cache ORDER BY response_ms DESC LIMIT 10"</code></pre>
+
+<h2 id="clear">Clear the cache</h2>
+<pre><code>sqx cache clear -older-than 24h
+sqx cache clear -all</code></pre>
+<p>As a safety measure, <code>clear</code> refuses to run unless you pass <code>-all</code> or <code>-older-than</code>.</p>
+
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/web-scraping/"><span class="pager-direction">Previous</span><span class="pager-title">Fetch and parse the web</span></a><a class="pager-link is-next" href="/site/saving-to-sqlite/"><span class="pager-direction">Next</span><span class="pager-title">Save to a SQLite database</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#how-it-works">How it works</a></li><li><a href="#location">Where the cache lives</a></li><li><a href="#control">Control freshness</a></li><li><a href="#inspect">Inspect the cache</a></li><li><a href="#clear">Clear the cache</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

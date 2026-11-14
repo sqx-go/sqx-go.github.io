@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>uniq command: collapse and count duplicates, with examples | sqx docs</title>
+  <meta name="description" content="Merge repeated adjacent lines, optionally counting them. Common uniq options, copy-paste examples, and how to use uniq with sqx.">
+  <meta name="keywords" content="uniq command, uniq examples, uniq linux, uniq macos, how to use uniq, uniq tutorial, uniq options">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/unix-tools/uniq/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="uniq command: collapse and count duplicates, with examples | sqx docs">
+  <meta property="og:description" content="Merge repeated adjacent lines, optionally counting them. Common uniq options, copy-paste examples, and how to use uniq with sqx.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/unix-tools/uniq/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="uniq command: collapse and count duplicates, with examples | sqx docs">
+  <meta name="twitter:description" content="Merge repeated adjacent lines, optionally counting them. Common uniq options, copy-paste examples, and how to use uniq with sqx.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "uniq",
+      "description": "Merge repeated adjacent lines, optionally counting them. Common uniq options, copy-paste examples, and how to use uniq with sqx.",
+      "url": "https://sqx-go.github.io/site/unix-tools/uniq/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "uniq command, uniq examples, uniq linux, uniq macos, how to use uniq, uniq tutorial, uniq options"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Unix tools",
+          "item": "https://sqx-go.github.io/site/unix-tools/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "uniq",
+          "item": "https://sqx-go.github.io/site/unix-tools/uniq/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="tools">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible" open><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/" aria-current="page">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/unix-tools/">Unix tools</a></li><li aria-current="page">uniq</li></ol></nav>
+      <article class="prose">
+        <h1><code class="tool-title">uniq</code> collapse and count duplicates</h1>
+<p class="lead">uniq removes or counts lines that repeat one after another. Because it only compares neighbouring lines, it is almost always used right after sort.</p>
+<p class="tool-availability"><span class="badge">Availability</span> Preinstalled on macOS, Linux and BSD</p>
+
+<h2 id="syntax">Syntax</h2>
+<pre><code>uniq [options] [file]</code></pre>
+
+<h2 id="options">Common options</h2>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>What it does</th></tr></thead><tbody><tr><td><code>-c</code></td><td>Prefix each line with how many times it occurred</td></tr><tr><td><code>-d</code></td><td>Print only lines that are repeated</td></tr><tr><td><code>-u</code></td><td>Print only lines that are not repeated</td></tr><tr><td><code>-i</code></td><td>Ignore case when comparing</td></tr></tbody></table></div>
+
+<h2 id="examples">Examples</h2>
+<h3>Remove duplicates</h3>
+<pre><code>sort visitors.txt | uniq</code></pre>
+<h3>Top 10 most frequent lines</h3>
+<pre><code>sort ips.txt | uniq -c | sort -rn | head -n 10</code></pre>
+
+
+<h2 id="with-sqx">Use uniq with sqx</h2>
+<h3>The SQL version of sort | uniq -c</h3>
+<p>The classic counting pipeline and the GROUP BY query give the same answer, but sqx skips the header and handles quoted CSV fields.</p>
+<pre><code>cut -d, -f4 users.csv | sort | uniq -c | sort -rn
+
+cat users.csv | sqx &quot;SELECT country, COUNT(*) AS n FROM stdin GROUP BY country ORDER BY n DESC&quot;</code></pre>
+
+
+<h2 id="learn-more">Full documentation</h2>
+<p>This page covers the essentials. For every option, see the official documentation:</p>
+<ul class="external-links"><li><a href="https://www.gnu.org/software/coreutils/manual/html_node/uniq-invocation.html" target="_blank" rel="noopener">GNU coreutils manual: uniq</a></li><li><a href="https://man7.org/linux/man-pages/man1/uniq.1.html" target="_blank" rel="noopener">Linux man page: uniq(1)</a></li><li><a href="https://man.freebsd.org/cgi/man.cgi?query=uniq&amp;sektion=1" target="_blank" rel="noopener">FreeBSD and macOS man page</a></li></ul>
+<p>Or read the manual in your terminal: <code>man uniq</code></p>
+
+<h2 id="related">Related tools</h2>
+<div class="tool-chips"><a class="tool-chip" href="/site/unix-tools/sort/"><code>sort</code></a></div>
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/unix-tools/sort/"><span class="pager-direction">Previous</span><span class="pager-title">sort</span></a><a class="pager-link is-next" href="/site/unix-tools/xargs/"><span class="pager-direction">Next</span><span class="pager-title">xargs</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#syntax">Syntax</a></li><li><a href="#options">Common options</a></li><li><a href="#examples">Examples</a></li><li><a href="#with-sqx">Use uniq with sqx</a></li><li><a href="#learn-more">Full documentation</a></li><li><a href="#related">Related tools</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

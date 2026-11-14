@@ -1,0 +1,83 @@
+<h1>Commands</h1>
+<p class="lead">sqx runs a SQL query by default. A few subcommands handle prefetching, importing and the cache. Flags can go before or after positional arguments in every command.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><a href="#query"><code>sqx [flags] "&lt;SQL&gt;"</code></a></td><td>Query stdin, <code>-f</code> files or a <code>-db</code> database</td></tr>
+    <tr><td><a href="#prefetch"><code>sqx prefetch</code></a></td><td>Fetch URLs concurrently into the cache</td></tr>
+    <tr><td><a href="#import"><code>sqx import</code></a></td><td>Load files, stdin or URLs into a database file</td></tr>
+    <tr><td><a href="#cache"><code>sqx cache</code></a></td><td>Inspect, query or clear the HTTP and DNS cache</td></tr>
+    <tr><td><a href="#tables-schema"><code>sqx tables</code> / <code>sqx schema</code></a></td><td>List tables with row counts, or show their <code>CREATE</code> statements</td></tr>
+    <tr><td><a href="#version"><code>sqx version</code></a></td><td>Print the version</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Run <code>sqx -h</code> to print the built-in help.</p>
+
+<h2 id="query">Query (default)</h2>
+<pre><code>cat data.csv | sqx [flags] "&lt;SQL&gt;"
+sqx -f users=users.csv -f events=events.jsonl "&lt;SQL&gt;"
+sqx -db project.db "&lt;SQL&gt;"</code></pre>
+<p>This is what runs when the first argument is not a subcommand. You can also write <code>sqx query …</code> explicitly.</p>
+<p>Statements that don't return rows (<code>INSERT</code>, <code>UPDATE</code>, <code>CREATE</code>, …) run as writes, and you can separate several with <code>;</code>. <code>INSERT … RETURNING</code> prints the returned rows. All <a href="/site/flags/#query-flags">query flags</a> and <a href="/site/flags/#cache-flags">cache flags</a> apply.</p>
+
+<h2 id="prefetch">sqx prefetch</h2>
+<pre><code>cat urls.txt | sqx prefetch -c 25 -timeout 10s
+sqx prefetch https://example.com https://go.dev</code></pre>
+<p>SQLite evaluates functions one row at a time, so warm the cache with <code>prefetch</code> before running a query over hundreds of URLs. URLs come from arguments or stdin, one per line.</p>
+<ul>
+  <li>Output columns: <code>url, final_url, status_code, response_ms, size_bytes, title, error</code>.</li>
+  <li>Rows come back in input order, and duplicate URLs are fetched once.</li>
+  <li><code>-c &lt;n&gt;</code> sets the number of workers (default <code>10</code>). <code>-o</code> sets the output format.</li>
+  <li>Accepts all <a href="/site/flags/#cache-flags">cache flags</a>. <code>sqx crawl</code> is an alias.</li>
+</ul>
+
+<h2 id="import">sqx import</h2>
+<pre><code>sqx import -db analytics.db -t users users.csv
+cat logs.jsonl | sqx import -db analytics.db -t logs
+sqx import -db analytics.db -t countries https://example.com/countries.csv
+sqx import -db analytics.db -t users -replace users.csv</code></pre>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>-db &lt;path&gt;</code></td><td><code>sqx.db</code></td><td>Target SQLite database file</td></tr>
+    <tr><td><code>-t &lt;name&gt;</code></td><td><code>data</code></td><td>Target table name</td></tr>
+    <tr><td><code>-i &lt;format&gt;</code></td><td><code>auto</code></td><td>Input format: <code>auto</code>, <code>csv</code>, <code>tsv</code>, <code>jsonl</code>, <code>json</code>, <code>lines</code></td></tr>
+    <tr><td><code>-no-header</code></td><td><code>false</code></td><td>CSV/TSV input has no header row</td></tr>
+    <tr><td><code>-replace</code></td><td><code>false</code></td><td>Drop the table first instead of appending</td></tr>
+  </tbody>
+</table>
+</div>
+<p><code>import</code> appends to an existing table and adds new columns automatically. The <a href="/site/flags/#cache-flags">cache flags</a> apply to URL sources.</p>
+
+<h2 id="cache">sqx cache</h2>
+<pre><code>sqx cache stats
+sqx cache ls
+sqx cache query "SELECT url, response_ms FROM http_cache ORDER BY response_ms DESC"
+sqx cache clear -older-than 24h
+sqx cache clear -all</code></pre>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Action</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>stats</code></td><td>URL and DNS counts, status breakdown, total body size</td></tr>
+    <tr><td><code>ls</code></td><td>Every cached URL with status and timestamp</td></tr>
+    <tr><td><code>query "&lt;SQL&gt;"</code></td><td>Run SQL against the <code>http_cache</code> and <code>dns_cache</code> tables</td></tr>
+    <tr><td><code>clear -older-than &lt;dur&gt;</code></td><td>Remove HTTP and DNS entries older than a duration</td></tr>
+    <tr><td><code>clear -all</code></td><td>Remove everything</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Also accepts <code>-cache-db</code> and <code>-o</code>. <code>clear</code> refuses to run without <code>-all</code> or <code>-older-than</code>. See <a href="/site/cache/">The web cache</a>.</p>
+
+<h2 id="tables-schema">sqx tables and sqx schema</h2>
+<pre><code>sqx tables -db analytics.db
+sqx schema -db analytics.db</code></pre>
+<p><code>tables</code> lists every table with its row count. <code>schema</code> prints the <code>CREATE</code> statements. Both default to <code>sqx.db</code> and accept <code>-o</code>.</p>
+
+<h2 id="version">sqx version</h2>
+<pre><code>sqx version</code></pre>
+<p>Prints the version, for example <code>sqx v1.2.0</code>. <code>sqx -version</code> does the same.</p>

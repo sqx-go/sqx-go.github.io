@@ -1,0 +1,54 @@
+<h1>Output formats</h1>
+<p class="lead">sqx prints a readable table in a terminal and CSV when its output is piped or redirected. Choose any other format with <code>-o</code>.</p>
+
+<h2 id="formats">Available formats</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Flag</th><th>Output</th><th>Good for</th></tr></thead>
+  <tbody>
+    <tr><td><code>-o auto</code></td><td><code>table</code> in a terminal, <code>csv</code> when piped (the default)</td><td>Everyday use</td></tr>
+    <tr><td><code>-o table</code></td><td>Boxed ASCII table</td><td>Reading results</td></tr>
+    <tr><td><code>-o csv</code></td><td>Comma-separated values</td><td>Spreadsheets, other tools</td></tr>
+    <tr><td><code>-o tsv</code></td><td>Tab-separated values</td><td><code>cut</code>, <code>awk</code>, pasting into sheets</td></tr>
+    <tr><td><code>-o json</code></td><td>A JSON array of objects</td><td>APIs, <code>jq</code>, JavaScript</td></tr>
+    <tr><td><code>-o jsonl</code></td><td>One JSON object per line</td><td>Streaming, log pipelines</td></tr>
+    <tr><td><code>-o md</code></td><td>Markdown table</td><td>READMEs, issues, reports</td></tr>
+    <tr><td><code>-o raw</code></td><td>Values only, one row per line</td><td><code>xargs</code>, shell loops</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="json">JSON and JSON Lines</h2>
+<pre><code>sqx -f u=data/users.csv -o json "SELECT id, name, plan FROM u LIMIT 2"</code></pre>
+<pre class="output"><code>[
+  {
+    "id": 1,
+    "name": "Asha Rao",
+    "plan": "pro"
+  },
+  {
+    "id": 2,
+    "name": "Ben Carter",
+    "plan": "free"
+  }
+]</code></pre>
+<pre><code>sqx -f u=data/users.csv -o jsonl "SELECT id, name FROM u LIMIT 2"</code></pre>
+<pre class="output"><code>{"id":1,"name":"Asha Rao"}
+{"id":2,"name":"Ben Carter"}</code></pre>
+<p>This makes sqx a one-line <strong>CSV to JSON converter</strong>. It works the other way too: <code>cat data.json | sqx -o csv "SELECT * FROM stdin"</code> converts <strong>JSON to CSV</strong>.</p>
+
+<h2 id="markdown">Markdown</h2>
+<pre><code>sqx -f u=data/users.csv -o md "SELECT id, name, plan FROM u LIMIT 3" &gt; users.md</code></pre>
+<pre class="output"><code>| id | name | plan |
+| --- | --- | --- |
+| 1 | Asha Rao | pro |
+| 2 | Ben Carter | free |
+| 3 | Chen Wei | pro |</code></pre>
+
+<h2 id="raw">Raw values for shell scripts</h2>
+<p><code>raw</code> prints only the values, which is ideal for feeding other commands:</p>
+<pre><code>sqx -f u=data/users.csv -o raw "SELECT email FROM u" | xargs -n1 echo mail:</code></pre>
+
+<h2 id="headers">Leaving out the header</h2>
+<p>Add <code>-no-output-header</code> to drop the header row from <code>csv</code> or <code>tsv</code> output:</p>
+<pre><code>sqx -f u=data/users.csv -o csv -no-output-header "SELECT id, name FROM u" &gt;&gt; all_users.csv</code></pre>

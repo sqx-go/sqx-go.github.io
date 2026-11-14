@@ -1,0 +1,69 @@
+<h1>Quick start</h1>
+<p class="lead">Three queries that show what sqx does: query a CSV, join two files and audit live URLs. It takes about five minutes.</p>
+
+<h2 id="before-you-start">Before you start</h2>
+<p><a href="/site/install/">Install sqx</a>, then get the sample files by cloning the repository and running the examples from its root:</p>
+<pre><code>git clone https://github.com/sqx-go/sqx-go.github.io.git sqx
+cd sqx</code></pre>
+<p>Don't want to clone? Point sqx at any CSV or JSON file you already have. Every example works the same way.</p>
+
+<h2 id="query-a-csv">1. Query a CSV piped on stdin</h2>
+<p>Whatever you pipe into sqx becomes a table called <code>stdin</code>:</p>
+<pre><code>cat data/users.csv | sqx "SELECT country, COUNT(*) AS customers FROM stdin GROUP BY country"</code></pre>
+<pre class="output"><code>+---------+-----------+
+| country | customers |
++---------+-----------+
+| CN      | 1         |
+| IN      | 2         |
+| MX      | 1         |
+| TR      | 1         |
+| US      | 1         |
++---------+-----------+</code></pre>
+<p>You did not tell sqx that the input was CSV, or which columns were numbers. It worked that out.</p>
+
+<h2 id="join-two-files">2. Join a CSV with a JSON Lines file</h2>
+<p>Use <code>-f name=path</code> to load each file as a named table, then join them like any other tables:</p>
+<pre><code>sqx -f users=data/users.csv -f events=data/events.jsonl "
+  SELECT u.name, COUNT(e.id) AS events, ROUND(SUM(e.amount), 2) AS revenue
+  FROM users u LEFT JOIN events e ON e.user_id = u.id
+  GROUP BY u.id ORDER BY revenue DESC"</code></pre>
+<pre class="output"><code>+-------------+--------+---------+
+| name        | events | revenue |
++-------------+--------+---------+
+| Diana Lopez | 1      | 310     |
+| Chen Wei    | 2      | 100.5   |
+| Asha Rao    | 2      | 49.99   |
+| Farah Khan  | 2      | 15.25   |
+| Ben Carter  | 1      | 0       |
+| Elif Kaya   | 0      |         |
++-------------+--------+---------+</code></pre>
+
+<h2 id="audit-urls">3. Audit live URLs</h2>
+<p>Use <code>-i lines</code> to read one URL per line. Each URL is fetched once, cached on disk, and shared by every function in the query:</p>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url, http_status(url) AS status, http_final_url(url) AS final_url, html_title(url) AS title
+  FROM stdin"</code></pre>
+<p>Run it a second time and it returns instantly, because the pages come from the cache.</p>
+
+<h2 id="change-the-output">Bonus: change the output</h2>
+<p>In a terminal sqx prints a table. Piped to another program it prints CSV. Pick any format with <code>-o</code>:</p>
+<pre><code>sqx -f u=data/users.csv -o json "SELECT id, name, plan FROM u LIMIT 2"</code></pre>
+<pre class="output"><code>[
+  {
+    "id": 1,
+    "name": "Asha Rao",
+    "plan": "pro"
+  },
+  {
+    "id": 2,
+    "name": "Ben Carter",
+    "plan": "free"
+  }
+]</code></pre>
+
+<h2 id="next-steps">Next steps</h2>
+<ul>
+  <li><a href="/site/concepts/">How sqx works</a> explains tables, the cache and persistence in two minutes.</li>
+  <li><a href="/site/functions/">SQL functions</a> lists everything you can call.</li>
+  <li><a href="/site/cookbook/">The cookbook</a> has ready-made recipes for logs, SEO and security.</li>
+</ul>

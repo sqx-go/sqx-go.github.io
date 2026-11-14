@@ -1,0 +1,8 @@
+{"id":101,"user_id":1,"type":"login","amount":0,"ts":"2024-05-01T09:12:00Z","meta":{"device":"mobile","app_version":"3.2.1"}}
+{"id":102,"user_id":1,"type":"purchase","amount":49.99,"ts":"2024-05-01T09:20:00Z","meta":{"device":"mobile","sku":"PIZZA-L"}}
+{"id":103,"user_id":2,"type":"login","amount":0,"ts":"2024-05-02T11:00:00Z","meta":{"device":"web"}}
+{"id":104,"user_id":3,"type":"purchase","amount":120.5,"ts":"2024-05-02T13:45:00Z","meta":{"device":"web","sku":"COMBO-XL"}}
+{"id":105,"user_id":3,"type":"refund","amount":-20,"ts":"2024-05-03T08:00:00Z","meta":{"device":"web","reason":"late"}}
+{"id":106,"user_id":4,"type":"purchase","amount":310,"ts":"2024-05-03T19:30:00Z","meta":{"device":"kiosk","sku":"PARTY-PACK"}}
+{"id":107,"user_id":6,"type":"purchase","amount":15.25,"ts":"2024-05-04T20:10:00Z","meta":{"device":"mobile","sku":"SIDE-GARLIC"}}
+{"id":108,"user_id":6,"type":"login","amount":0,"ts":"2024-05-04T20:00:00Z","tags":["new","promo"]}

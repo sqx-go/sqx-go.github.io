@@ -1,0 +1,154 @@
+<section class="hero">
+  <div class="hero-copy">
+    <p class="hero-kicker">Free · Open source · One binary</p>
+    <h1>SQL for Unix streams <em>and the web.</em></h1>
+    <p class="hero-lead"><strong>sqx</strong> turns CSV, JSON, logs and plain text into tables you can query straight from your terminal. Built-in functions fetch URLs, read HTML and look up DNS, so one query can join a spreadsheet with a live website.</p>
+    <div class="hero-actions">
+      <a class="button is-primary" href="/site/install/">Install sqx</a>
+      <a class="button" href="/site/quick-start/">Quick start</a>
+      <a class="button is-ghost" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub →</a>
+    </div>
+  </div>
+  <div class="hero-terminal">
+    <div class="terminal-bar"><span></span><span></span><span></span><em>~/data</em></div>
+<pre><code>cat users.csv | sqx "
+  SELECT country, COUNT(*) AS customers
+  FROM stdin GROUP BY country"</code></pre>
+<pre class="output"><code>+---------+-----------+
+| country | customers |
++---------+-----------+
+| CN      | 1         |
+| IN      | 2         |
+| MX      | 1         |
+| TR      | 1         |
+| US      | 1         |
++---------+-----------+</code></pre>
+  </div>
+</section>
+
+<h2 id="how-it-works">Data in, SQL in the middle, answers out</h2>
+<p>Pipe in whatever you have. sqx loads it into an in-memory SQLite database, runs your query, and prints the result in the format you need.</p>
+<div class="pipeline" role="img" aria-label="Inputs such as CSV, JSON, logs and URLs flow into sqx, which outputs tables, CSV, JSON, Markdown or a SQLite file">
+  <div class="pipeline-column">
+    <span class="pipeline-label">You pipe in</span>
+    <ul><li>CSV</li><li>TSV</li><li>JSON</li><li>JSON Lines</li><li>logs</li><li>URLs</li><li>HTML</li></ul>
+  </div>
+  <div class="pipeline-core">
+    <img src="/site/favicon.svg" alt="" width="44" height="44">
+    <strong>sq<span class="brand-x">x</span></strong>
+    <small>SELECT … FROM stdin</small>
+  </div>
+  <div class="pipeline-column">
+    <span class="pipeline-label">You get back</span>
+    <ul><li>table</li><li>CSV</li><li>JSON</li><li>Markdown</li><li>raw values</li><li>SQLite file</li></ul>
+  </div>
+</div>
+
+<h2 id="why-sqx">Why sqx?</h2>
+<p>Joining two CSV files, checking which of 500 URLs are broken, or finding an API key leaked in a page should not need a database server, credentials or a throwaway Python script. With sqx, you pipe data in and write the SQL you already know.</p>
+
+<div class="feature-grid">
+  <div class="feature">
+    <h3>Any stream is a table</h3>
+    <p>CSV, TSV, JSON arrays, JSON Lines and plain lines. The format is detected, column types are inferred and messy headers are cleaned up.</p>
+  </div>
+  <div class="feature">
+    <h3>Join files on the fly</h3>
+    <p>Load any number of local files or URLs with <code>-f name=path</code> and <code>JOIN</code> them in one query.</p>
+  </div>
+  <div class="feature">
+    <h3>Crawl once, query many times</h3>
+    <p>Every <code>http_*</code> and <code>html_*</code> function shares an on-disk cache, so each URL is downloaded once.</p>
+  </div>
+  <div class="feature">
+    <h3>HTML without a browser</h3>
+    <p>Pull titles, meta tags, headings, links and attributes out of fetched pages or stored HTML.</p>
+  </div>
+  <div class="feature">
+    <h3>Security helpers</h3>
+    <p>DNS A and TXT lookups for SPF and DMARC, private-IP checks, regex extraction, SHA-256 and Shannon entropy.</p>
+  </div>
+  <div class="feature">
+    <h3>Nothing else to install</h3>
+    <p>One self-contained binary for macOS, Linux, Windows and FreeBSD. SQLite is built in.</p>
+  </div>
+</div>
+
+<h2 id="examples">Three things you can do in one line</h2>
+
+<h3>Join a CSV with a JSON Lines file</h3>
+<pre><code>sqx -f users=users.csv -f events=events.jsonl "
+  SELECT u.name, COUNT(e.id) AS events, ROUND(SUM(e.amount), 2) AS revenue
+  FROM users u LEFT JOIN events e ON e.user_id = u.id
+  GROUP BY u.id ORDER BY revenue DESC"</code></pre>
+
+<h3>Audit a list of URLs</h3>
+<pre><code>cat urls.txt | sqx -i lines "
+  SELECT url, http_status(url) AS status, http_final_url(url) AS final_url, html_title(url) AS title
+  FROM stdin"</code></pre>
+
+<h3>Check SPF and DMARC for a list of domains</h3>
+<pre><code>cat companies.csv | sqx "
+  SELECT domain,
+         CASE WHEN dns_txt_json(domain) LIKE '%v=spf1%' THEN 'yes' ELSE 'MISSING' END AS spf,
+         CASE WHEN dns_txt_json('_dmarc.' || domain) LIKE '%v=DMARC1%' THEN 'yes' ELSE 'MISSING' END AS dmarc
+  FROM stdin"</code></pre>
+
+<p>More in the <a href="/site/cookbook/">cookbook</a>.</p>
+
+<h2 id="unix-tools">Works with the tools you already know</h2>
+<p>sqx is one more command in your pipeline. Our short guides cover the classic Unix tools it pairs with, with everyday options, examples and links to the full manuals.</p>
+<div class="tool-chips is-large">
+  <a class="tool-chip" href="/site/unix-tools/cat/"><code>cat</code></a>
+  <a class="tool-chip" href="/site/unix-tools/head/"><code>head</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tail/"><code>tail</code></a>
+  <a class="tool-chip" href="/site/unix-tools/wc/"><code>wc</code></a>
+  <a class="tool-chip" href="/site/unix-tools/grep/"><code>grep</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sed/"><code>sed</code></a>
+  <a class="tool-chip" href="/site/unix-tools/awk/"><code>awk</code></a>
+  <a class="tool-chip" href="/site/unix-tools/cut/"><code>cut</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tr/"><code>tr</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sort/"><code>sort</code></a>
+  <a class="tool-chip" href="/site/unix-tools/uniq/"><code>uniq</code></a>
+  <a class="tool-chip" href="/site/unix-tools/xargs/"><code>xargs</code></a>
+  <a class="tool-chip" href="/site/unix-tools/tee/"><code>tee</code></a>
+  <a class="tool-chip" href="/site/unix-tools/find/"><code>find</code></a>
+  <a class="tool-chip" href="/site/unix-tools/curl/"><code>curl</code></a>
+  <a class="tool-chip" href="/site/unix-tools/jq/"><code>jq</code></a>
+  <a class="tool-chip" href="/site/unix-tools/sqlite3/"><code>sqlite3</code></a>
+</div>
+<p><a href="/site/unix-tools/">Browse all Unix tool guides →</a></p>
+
+<h2 id="docs">Documentation</h2>
+<div class="card-grid">
+  <a class="doc-card" href="/site/install/"><strong>Install</strong><span>Download the binary for your system and put it on your PATH.</span></a>
+  <a class="doc-card" href="/site/quick-start/"><strong>Quick start</strong><span>Your first three queries in five minutes.</span></a>
+  <a class="doc-card" href="/site/loading-data/"><strong>Load data</strong><span>CSV, TSV, JSON, JSON Lines, text and URLs.</span></a>
+  <a class="doc-card" href="/site/web-scraping/"><strong>Fetch and parse the web</strong><span>Status codes, redirects, headers, titles and links.</span></a>
+  <a class="doc-card" href="/site/functions/"><strong>SQL functions</strong><span>Every URL, HTTP, HTML, DNS, regex and hash function.</span></a>
+  <a class="doc-card" href="/site/commands/"><strong>Commands and flags</strong><span>prefetch, import, cache, tables, schema and every option.</span></a>
+</div>
+
+<h2 id="faq">Frequently asked questions</h2>
+<div class="faq">
+  <details>
+    <summary>How do I query a CSV file with SQL from the command line?</summary>
+    <p>Pipe the file into sqx and query the table named <code>stdin</code>: <code>cat users.csv | sqx "SELECT country, COUNT(*) FROM stdin GROUP BY country"</code>. sqx detects the format, cleans up column names and infers numeric types. See <a href="/site/loading-data/">Load CSV, JSON and text</a>.</p>
+  </details>
+  <details>
+    <summary>Can I join a CSV file with a JSON file using SQL?</summary>
+    <p>Yes. Load each file as a named table with <code>-f</code> and join them in one query. See <a href="/site/joins/">Join files</a>.</p>
+  </details>
+  <details>
+    <summary>Does sqx need SQLite or a database server installed?</summary>
+    <p>No. sqx is one self-contained binary with SQLite built in. There is no runtime, server, driver or shared library to install.</p>
+  </details>
+  <details>
+    <summary>Can sqx fetch web pages and extract HTML with SQL?</summary>
+    <p>Yes. Functions such as <code>http_status(url)</code>, <code>html_title(url)</code>, <code>html_meta(url, 'description')</code> and <code>html_links(url)</code> fetch pages through a persistent cache, so each URL is downloaded only once. See <a href="/site/web-scraping/">Fetch and parse the web</a>.</p>
+  </details>
+  <details>
+    <summary>Is sqx free and open source?</summary>
+    <p>Yes. sqx is free software released under the GNU General Public License, version 2 or later.</p>
+  </details>
+</div>

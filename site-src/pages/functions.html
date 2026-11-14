@@ -1,0 +1,114 @@
+<h1>SQL functions</h1>
+<p class="lead">sqx is SQLite plus extra functions for URLs, HTTP, HTML, DNS, regular expressions and hashing. Every built-in SQLite function, including the <a href="https://www.sqlite.org/json1.html" rel="noopener">JSON functions</a>, works too.</p>
+
+<h2 id="url">URL functions</h2>
+<p>These parse URLs locally and never touch the network.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td><code>url_host(url)</code><br><code>url_domain(url)</code></td><td>Lowercase hostname</td><td><code>'https://Sub.Example.com:8080/a'</code> → <code>sub.example.com</code></td></tr>
+    <tr><td><code>url_scheme(url)</code></td><td>Scheme</td><td><code>'https://example.com'</code> → <code>https</code></td></tr>
+    <tr><td><code>url_path(url)</code></td><td>Path (<code>/</code> if empty)</td><td><code>'https://example.com/blog?x=1'</code> → <code>/blog</code></td></tr>
+    <tr><td><code>url_query(url, key)</code></td><td>One query parameter</td><td><code>('https://x.com/?id=42', 'id')</code> → <code>42</code></td></tr>
+    <tr><td><code>url_ext(url)</code></td><td>Lowercase file extension</td><td><code>'https://cdn.com/app.min.js?v=2'</code> → <code>.js</code></td></tr>
+    <tr><td><code>url_norm(url)</code></td><td>Lowercase host, no fragment, sorted query</td><td><code>'https://example.com/?b=2&amp;a=1#top'</code> → <code>https://example.com/?a=1&amp;b=2</code></td></tr>
+    <tr><td><code>url_join(base, ref)</code></td><td>Resolved URL</td><td><code>('https://a.com/dir/page.html', '../img.png')</code> → <code>https://a.com/img.png</code></td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>sqx "SELECT url_host('https://Sub.Example.com:8080/a') AS host,
+            url_norm('https://example.com/?b=2&amp;a=1#top') AS normalized"</code></pre>
+
+<h2 id="http">HTTP functions</h2>
+<p>Each URL is fetched once and stored in the <a href="/site/cache/">cache</a>, however many of these functions you call.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>http_status(url)</code></td><td>Status code, or <code>0</code> on a network error</td></tr>
+    <tr><td><code>http_body(url)</code></td><td>Response body</td></tr>
+    <tr><td><code>http_header(url, name)</code></td><td>One header (case-insensitive)</td></tr>
+    <tr><td><code>http_headers_json(url)</code></td><td>All headers as a JSON object, names in lowercase</td></tr>
+    <tr><td><code>http_time_ms(url)</code></td><td>Fetch duration in milliseconds</td></tr>
+    <tr><td><code>http_final_url(url)</code></td><td>URL after redirects</td></tr>
+    <tr><td><code>http_size(url)</code></td><td>Body size in bytes</td></tr>
+    <tr><td><code>http_error(url)</code></td><td>Error message, or <code>NULL</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Check security headers for a list of sites:</p>
+<pre><code>cat urls.txt | sqx -i lines "
+  SELECT url, http_header(url, 'strict-transport-security') AS hsts,
+         http_header(url, 'content-security-policy') IS NOT NULL AS has_csp
+  FROM stdin"</code></pre>
+
+<h2 id="html">HTML functions</h2>
+<p>Each function accepts <strong>either a URL</strong>, fetched through the cache, <strong>or a raw HTML string</strong>.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>html_title(x)</code></td><td>Text of <code>&lt;title&gt;</code></td></tr>
+    <tr><td><code>html_meta(x, key)</code></td><td><code>content</code> of <code>&lt;meta name|property|http-equiv="key"&gt;</code></td></tr>
+    <tr><td><code>html_text(x)</code></td><td>Plain text without tags, scripts, styles, <code>noscript</code>, comments or the doctype</td></tr>
+    <tr><td><code>html_links(x)</code></td><td>JSON array of <code>&lt;a href&gt;</code> links. Made absolute when <code>x</code> is a URL; <code>#anchors</code> and <code>javascript:</code> links are skipped.</td></tr>
+    <tr><td><code>html_tag_texts(x, tag)</code></td><td>JSON array of the inner text of every <code>&lt;tag&gt;</code></td></tr>
+    <tr><td><code>html_attr(x, tag, attr)</code></td><td>JSON array of attribute values</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Combine the JSON-array functions with <code>json_each(...)</code> to get one row per item, or <code>json_array_length(...)</code> to count them:</p>
+<pre><code>sqx -f pages=data/pages.jsonl "
+  SELECT url_path(url) AS page,
+         json_array_length(html_attr(html, 'img', 'src')) AS images,
+         json_array_length(html_attr(html, 'img', 'alt')) AS with_alt
+  FROM pages"</code></pre>
+
+<h2 id="dns">DNS and network functions</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>dns_ip(host_or_url)</code></td><td>First resolved address</td></tr>
+    <tr><td><code>dns_ips_json(host_or_url)</code></td><td>JSON array of every address</td></tr>
+    <tr><td><code>dns_txt_json(host_or_url)</code></td><td>JSON array of TXT records (SPF, DMARC, verification tokens)</td></tr>
+    <tr><td><code>ip_is_private(ip)</code></td><td><code>1</code> for loopback, private or link-local addresses, otherwise <code>0</code></td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>cat data/urls.txt | sqx -i lines "
+  SELECT url_host(url) AS host, dns_ip(url) AS ip, ip_is_private(dns_ip(url)) AS is_private
+  FROM stdin GROUP BY host"</code></pre>
+
+<h2 id="regex">Regular expressions</h2>
+<p>Patterns use <a href="https://github.com/google/re2/wiki/Syntax" rel="noopener">Go RE2 syntax</a>. Add <code>(?i)</code> at the start for a case-insensitive match.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>text REGEXP pattern</code></td><td><code>1</code> on a match</td></tr>
+    <tr><td><code>re_match(text, pattern)</code></td><td>Same as <code>REGEXP</code>, written as a function</td></tr>
+    <tr><td><code>re_extract(text, pattern, group)</code></td><td>One capture group (<code>0</code> is the whole match)</td></tr>
+    <tr><td><code>re_extract_all(text, pattern)</code></td><td>JSON array of every match</td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>cat data/access_log.csv | sqx "
+  SELECT ts, client_ip, request_url FROM stdin
+  WHERE request_url REGEXP '(?i)(\.\./|%27|/etc/passwd)'"</code></pre>
+
+<h2 id="hashing">Hashing and entropy</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Function</th><th>Returns</th></tr></thead>
+  <tbody>
+    <tr><td><code>sha256(text)</code></td><td>Hex SHA-256 digest</td></tr>
+    <tr><td><code>shannon_entropy(text)</code></td><td>Entropy in bits per character. Random tokens and secrets score high.</td></tr>
+  </tbody>
+</table>
+</div>
+<pre><code>sqx -f pages=data/pages.jsonl "
+  SELECT substr(sha256(html_text(html)), 1, 12) AS content_hash, COUNT(*) AS pages,
+         GROUP_CONCAT(url_path(url), ' | ') AS urls
+  FROM pages GROUP BY content_hash HAVING pages &gt; 1"</code></pre>

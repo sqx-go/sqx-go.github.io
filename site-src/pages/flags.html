@@ -1,0 +1,51 @@
+<h1>Flags</h1>
+<p class="lead">Every flag sqx understands, with its default. Flags can appear before or after the SQL text.</p>
+
+<h2 id="query-flags">Query flags</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>-f &lt;name=path&gt;</code></td><td>—</td><td>Load a file or URL as a table. Repeatable. Without <code>name=</code>, the table is named after the file.</td></tr>
+    <tr><td><code>-t &lt;name&gt;</code></td><td><code>stdin</code></td><td>Table name for piped stdin</td></tr>
+    <tr><td><code>-i &lt;format&gt;</code></td><td><code>auto</code></td><td>stdin format: <code>auto</code>, <code>csv</code>, <code>tsv</code>, <code>jsonl</code>, <code>json</code>, <code>lines</code></td></tr>
+    <tr><td><code>-o &lt;format&gt;</code></td><td><code>auto</code></td><td>Output: <code>auto</code> (<code>table</code> on a terminal, <code>csv</code> when piped), <code>csv</code>, <code>tsv</code>, <code>table</code>, <code>md</code>, <code>json</code>, <code>jsonl</code>, <code>raw</code></td></tr>
+    <tr><td><code>-db &lt;path&gt;</code></td><td><code>:memory:</code></td><td>SQLite database for persistent tables</td></tr>
+    <tr><td><code>-save &lt;table&gt;</code></td><td>—</td><td>Save the result into <code>&lt;table&gt;</code> in <code>-db</code>, replacing it if it exists</td></tr>
+    <tr><td><code>-no-header</code></td><td><code>false</code></td><td>CSV/TSV input has no header row; columns become <code>c1, c2, …</code></td></tr>
+    <tr><td><code>-no-output-header</code></td><td><code>false</code></td><td>Omit the header row in <code>csv</code>/<code>tsv</code> output</td></tr>
+    <tr><td><code>-version</code></td><td><code>false</code></td><td>Print the version and exit</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="cache-flags">Cache flags</h2>
+<p>These apply to queries, <code>prefetch</code> and <code>import</code>.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td><code>-cache-db &lt;path&gt;</code></td><td>User cache folder</td><td>Cache file. Use one per project or in CI.</td></tr>
+    <tr><td><code>-cache-ttl &lt;dur&gt;</code></td><td><code>168h</code></td><td>Max age of cached HTTP and DNS entries; <code>0s</code> always refetches</td></tr>
+    <tr><td><code>-offline</code></td><td><code>false</code></td><td>Never use the network; a cache miss returns status <code>0</code> / <code>NULL</code></td></tr>
+    <tr><td><code>-force</code></td><td><code>false</code></td><td>Ignore the cache and fetch each URL again</td></tr>
+    <tr><td><code>-timeout &lt;dur&gt;</code></td><td><code>15s</code></td><td>HTTP request timeout</td></tr>
+    <tr><td><code>-ua &lt;string&gt;</code></td><td><code>sqx/&lt;version&gt;</code></td><td><code>User-Agent</code> header</td></tr>
+    <tr><td><code>-max-body-bytes &lt;n&gt;</code></td><td><code>10485760</code></td><td>Maximum response body size kept per URL (10 MiB)</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Durations use Go syntax: <code>30s</code>, <code>15m</code>, <code>1h</code>, <code>24h</code>, <code>168h</code>.</p>
+
+<h2 id="subcommand-flags">Subcommand flags</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Command</th><th>Flags</th></tr></thead>
+  <tbody>
+    <tr><td><code>prefetch</code></td><td><code>-c &lt;workers&gt;</code> (default <code>10</code>), <code>-o</code>, cache flags</td></tr>
+    <tr><td><code>import</code></td><td><code>-db</code> (default <code>sqx.db</code>), <code>-t</code> (default <code>data</code>), <code>-i</code>, <code>-no-header</code>, <code>-replace</code>, cache flags</td></tr>
+    <tr><td><code>cache</code></td><td><code>-all</code>, <code>-older-than &lt;dur&gt;</code>, <code>-cache-db</code>, <code>-o</code></td></tr>
+    <tr><td><code>tables</code>, <code>schema</code></td><td><code>-db</code> (default <code>sqx.db</code>), <code>-o</code></td></tr>
+  </tbody>
+</table>
+</div>

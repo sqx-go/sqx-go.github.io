@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Import CSV and JSON into a SQLite database | sqx docs</title>
+  <meta name="description" content="Import CSV, JSON and URLs into a SQLite database file with sqx import, save query results with -save, and run INSERT, UPDATE, RETURNING and upserts.">
+  <meta name="keywords" content="import csv into sqlite, json to sqlite, csv to sqlite database, sqlite upsert, save query results, sqlite workspace">
+  <meta name="author" content="Abhishek Sengar">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#17181c">
+  <link rel="canonical" href="https://sqx-go.github.io/site/saving-to-sqlite/">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="sqx">
+  <meta property="og:title" content="Import CSV and JSON into a SQLite database | sqx docs">
+  <meta property="og:description" content="Import CSV, JSON and URLs into a SQLite database file with sqx import, save query results with -save, and run INSERT, UPDATE, RETURNING and upserts.">
+  <meta property="og:url" content="https://sqx-go.github.io/site/saving-to-sqlite/">
+  <meta property="og:image" content="https://sqx-go.github.io/site/social-card.png">
+  <meta property="og:image:alt" content="sqx: SQL for Unix streams and the web">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Import CSV and JSON into a SQLite database | sqx docs">
+  <meta name="twitter:description" content="Import CSV, JSON and URLs into a SQLite database file with sqx import, save query results with -save, and run INSERT, UPDATE, RETURNING and upserts.">
+  <meta name="twitter:image" content="https://sqx-go.github.io/site/social-card.png">
+  <link rel="icon" href="/site/favicon.svg" type="image/svg+xml">
+  <link rel="sitemap" type="application/xml" href="/site/sitemap.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="stylesheet" href="/site/assets/site.css">
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://sqx-go.github.io/#website",
+      "name": "sqx",
+      "url": "https://sqx-go.github.io/",
+      "description": "sqx: SQL for Unix streams and the web"
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Save to a SQLite database",
+      "description": "Import CSV, JSON and URLs into a SQLite database file with sqx import, save query results with -save, and run INSERT, UPDATE, RETURNING and upserts.",
+      "url": "https://sqx-go.github.io/site/saving-to-sqlite/",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://sqx-go.github.io/#website"
+      },
+      "about": {
+        "@id": "https://sqx-go.github.io/#software"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Abhishek Sengar",
+        "url": "https://sqx-go.github.io/site/about/",
+        "sameAs": [
+          "https://github.com/monad-one",
+          "https://www.linkedin.com/in/abhishek-sengar"
+        ]
+      },
+      "keywords": "import csv into sqlite, json to sqlite, csv to sqlite database, sqlite upsert, save query results, sqlite workspace"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://sqx-go.github.io/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Docs",
+          "item": "https://sqx-go.github.io/site/install/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Save to a SQLite database",
+          "item": "https://sqx-go.github.io/site/saving-to-sqlite/"
+        }
+      ]
+    }
+  ]
+}
+</script>
+  <script src="/site/assets/site.js" defer></script>
+</head>
+<body class="layout-doc" data-section="docs">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="site-header-bar">
+      <button class="menu-button" type="button" aria-controls="site-sidebar" aria-expanded="false" aria-label="Open documentation menu"><span></span></button>
+      <a class="brand" href="/" aria-label="sqx home">
+        <img class="brand-mark" src="/site/favicon.svg" alt="" width="28" height="28">
+        <span class="brand-name">sq<span class="brand-x">x</span></span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/site/install/" data-nav="docs">Docs</a>
+        <a class="is-secondary" href="/site/functions/">Functions</a>
+        <a class="is-secondary" href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/" data-nav="tools">Unix tools</a>
+        <a class="is-secondary" href="/site/about/" data-nav="about">About</a>
+        <a class="site-nav-github" href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <aside class="sidebar" id="site-sidebar" aria-label="Documentation">
+      <div class="nav-group"><h2 class="nav-group-title">Getting started</h2><ul><li><a href="/site/install/">Install</a></li><li><a href="/site/quick-start/">Quick start</a></li><li><a href="/site/concepts/">How sqx works</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Guides</h2><ul><li><a href="/site/loading-data/">Load CSV, JSON and text</a></li><li><a href="/site/joins/">Join files</a></li><li><a href="/site/output-formats/">Output formats</a></li><li><a href="/site/web-scraping/">Fetch and parse the web</a></li><li><a href="/site/cache/">The web cache</a></li><li><a href="/site/saving-to-sqlite/" aria-current="page">Save to a SQLite database</a></li></ul></div><div class="nav-group"><h2 class="nav-group-title">Reference</h2><ul><li><a href="/site/commands/">Commands</a></li><li><a href="/site/flags/">Flags</a></li><li><a href="/site/functions/">SQL functions</a></li></ul></div><details class="nav-group is-collapsible"><summary class="nav-group-title">Unix tools</summary><ul><li><a href="/site/unix-tools/">Overview</a></li><li><a href="/site/unix-tools/cat/">cat</a></li><li><a href="/site/unix-tools/head/">head</a></li><li><a href="/site/unix-tools/tail/">tail</a></li><li><a href="/site/unix-tools/wc/">wc</a></li><li><a href="/site/unix-tools/grep/">grep</a></li><li><a href="/site/unix-tools/sed/">sed</a></li><li><a href="/site/unix-tools/awk/">awk</a></li><li><a href="/site/unix-tools/cut/">cut</a></li><li><a href="/site/unix-tools/tr/">tr</a></li><li><a href="/site/unix-tools/sort/">sort</a></li><li><a href="/site/unix-tools/uniq/">uniq</a></li><li><a href="/site/unix-tools/xargs/">xargs</a></li><li><a href="/site/unix-tools/tee/">tee</a></li><li><a href="/site/unix-tools/find/">find</a></li><li><a href="/site/unix-tools/curl/">curl</a></li><li><a href="/site/unix-tools/jq/">jq</a></li><li><a href="/site/unix-tools/sqlite3/">sqlite3</a></li></ul></details><div class="nav-group"><h2 class="nav-group-title">More</h2><ul><li><a href="/site/cookbook/">Cookbook</a></li><li><a href="/site/build-from-source/">Build from source</a></li><li><a href="/site/about/">About</a></li></ul></div>
+      <div class="sidebar-mobile-links">
+        <a href="/">Home</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+      </div>
+    </aside>
+
+    <main id="main" class="content">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li><li><a href="/site/install/">Docs</a></li><li aria-current="page">Save to a SQLite database</li></ol></nav>
+      <article class="prose">
+        <h1>Save to a SQLite database</h1>
+<p class="lead">Queries run in memory by default. When you want to keep data, sqx can import files into a SQLite database file, save query results as tables, and run any write statement.</p>
+
+<h2 id="import">Import files into a database</h2>
+<pre><code>sqx import -db analytics.db -t users users.csv
+cat logs.jsonl | sqx import -db analytics.db -t logs
+sqx import -db analytics.db -t countries https://example.com/countries.csv</code></pre>
+<ul>
+  <li><code>import</code> <strong>appends</strong> to an existing table and adds any new columns automatically.</li>
+  <li><code>-replace</code> drops the table first: <code>sqx import -db analytics.db -t users -replace users.csv</code>.</li>
+  <li>Without <code>-db</code>, it writes to <code>sqx.db</code> in the current folder.</li>
+</ul>
+<p>Check what you have:</p>
+<pre><code>sqx tables -db analytics.db
+sqx schema -db analytics.db</code></pre>
+
+<h2 id="query">Query the database</h2>
+<pre><code>sqx -db analytics.db "SELECT country, COUNT(*) FROM users GROUP BY country"</code></pre>
+<p>The file is a normal SQLite database, so you can also open it with the <code>sqlite3</code> shell, DB Browser for SQLite, Datasette or any programming language.</p>
+
+<h2 id="save-results">Save a query result</h2>
+<p><code>-save &lt;table&gt;</code> writes the result of a query into the database. Running it again replaces the table, so a report stays up to date:</p>
+<pre><code>sqx -db analytics.db -save big_spenders "
+  SELECT u.name, SUM(e.amount) AS total
+  FROM users u JOIN events e ON e.user_id = u.id
+  GROUP BY u.id HAVING total &gt; 40"</code></pre>
+<div class="callout">
+  <p>Tables from stdin and <code>-f</code> are never written into <code>-db</code>. Repeating a command never duplicates rows.</p>
+</div>
+
+<h2 id="writes">Create, insert and update</h2>
+<p>Statements that don't return rows (<code>CREATE</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, …) run as writes. Separate several with <code>;</code>. <code>INSERT … RETURNING</code> prints the returned rows.</p>
+<pre><code>sqx -db shop.db "CREATE TABLE stores (id INTEGER PRIMARY KEY, city TEXT, region TEXT)"
+sqx -db shop.db "INSERT INTO stores (city) VALUES ('BLR'), ('DEL'), ('MUM')"
+sqx -db shop.db "INSERT INTO stores (city) VALUES ('HYD') RETURNING id, city"</code></pre>
+<p>Update a saved table from a file:</p>
+<pre><code>sqx -db shop.db -f orders=data/headerless.csv -no-header "
+  UPDATE stores SET region = (SELECT c1 FROM orders WHERE orders.c2 = stores.city LIMIT 1)"</code></pre>
+
+<h2 id="upsert">Upsert from a file</h2>
+<pre><code>sqx -db shop.db "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_id ON users(id)"
+sqx -db shop.db -f incoming=data/users.csv "
+  INSERT INTO main.users SELECT * FROM incoming WHERE true
+  ON CONFLICT(id) DO UPDATE SET plan = excluded.plan, email = excluded.email"</code></pre>
+<p>SQLite requires the <code>WHERE true</code> when an <code>INSERT … SELECT</code> has an <code>ON CONFLICT</code> clause. A table loaded with <code>-f</code> or from stdin hides a saved table of the same name, so write <code>main.&lt;name&gt;</code> for the saved one when names collide.</p>
+
+      </article>
+      <nav class="pager" aria-label="Previous and next pages"><a class="pager-link is-previous" href="/site/cache/"><span class="pager-direction">Previous</span><span class="pager-title">The web cache</span></a><a class="pager-link is-next" href="/site/commands/"><span class="pager-direction">Next</span><span class="pager-title">Commands</span></a></nav>
+    </main>
+
+    <div class="toc-column"><nav class="toc" aria-labelledby="toc-title"><h2 id="toc-title">On this page</h2><ul><li><a href="#import">Import files into a database</a></li><li><a href="#query">Query the database</a></li><li><a href="#save-results">Save a query result</a></li><li><a href="#writes">Create, insert and update</a></li><li><a href="#upsert">Upsert from a file</a></li></ul></nav></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="footer-about">
+        <a class="brand" href="/" aria-label="sqx home">
+          <img class="brand-mark" src="/site/favicon.svg" alt="" width="24" height="24">
+          <span class="brand-name">sq<span class="brand-x">x</span></span>
+        </a>
+        <p>SQL for CSV, JSON, logs and the web, in one static binary. Free and open source.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/site/install/">Install</a>
+        <a href="/site/quick-start/">Quick start</a>
+        <a href="/site/functions/">SQL functions</a>
+        <a href="/site/cookbook/">Cookbook</a>
+        <a href="/site/unix-tools/">Unix tools</a>
+        <a href="/site/about/">About</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io" rel="noopener">GitHub</a>
+        <a href="https://github.com/sqx-go/sqx-go.github.io/releases/latest" rel="noopener">Download</a>
+      </nav>
+      <p class="footer-legal">© 2026 Abhishek Sengar. sqx is released under the <a href="https://github.com/sqx-go/sqx-go.github.io/blob/main/LICENSE" rel="noopener">GNU GPL v2 or later</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
